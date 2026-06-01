@@ -6622,6 +6622,264 @@
                 "BaseAggro": 75
             }
         },
+        "1505": {
+            "0": {
+                "AttackBase": 100.32,
+                "AttackAdd": 5.016,
+                "DefenceBase": 62.7,
+                "DefenceAdd": 3.135,
+                "HPBase": 142.56,
+                "HPAdd": 7.128,
+                "SpeedBase": 104,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "1": {
+                "AttackBase": 140.448,
+                "AttackAdd": 5.016,
+                "DefenceBase": 87.78,
+                "DefenceAdd": 3.135,
+                "HPBase": 199.584,
+                "HPAdd": 7.128,
+                "SpeedBase": 104,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "2": {
+                "AttackBase": 180.576,
+                "AttackAdd": 5.016,
+                "DefenceBase": 112.86,
+                "DefenceAdd": 3.135,
+                "HPBase": 256.608,
+                "HPAdd": 7.128,
+                "SpeedBase": 104,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "3": {
+                "AttackBase": 220.704,
+                "AttackAdd": 5.016,
+                "DefenceBase": 137.94,
+                "DefenceAdd": 3.135,
+                "HPBase": 313.632,
+                "HPAdd": 7.128,
+                "SpeedBase": 104,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "4": {
+                "AttackBase": 260.832,
+                "AttackAdd": 5.016,
+                "DefenceBase": 163.02,
+                "DefenceAdd": 3.135,
+                "HPBase": 370.656,
+                "HPAdd": 7.128,
+                "SpeedBase": 104,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "5": {
+                "AttackBase": 300.96,
+                "AttackAdd": 5.016,
+                "DefenceBase": 188.1,
+                "DefenceAdd": 3.135,
+                "HPBase": 427.68,
+                "HPAdd": 7.128,
+                "SpeedBase": 104,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "6": {
+                "AttackBase": 341.088,
+                "AttackAdd": 5.016,
+                "DefenceBase": 213.18,
+                "DefenceAdd": 3.135,
+                "HPBase": 484.704,
+                "HPAdd": 7.128,
+                "SpeedBase": 104,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            }
+        },
+        "1506": {
+            "0": {
+                "AttackBase": 52.8,
+                "AttackAdd": 2.64,
+                "DefenceBase": 89.1,
+                "DefenceAdd": 4.455,
+                "HPBase": 142.56,
+                "HPAdd": 7.128,
+                "SpeedBase": 110,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "1": {
+                "AttackBase": 73.92,
+                "AttackAdd": 2.64,
+                "DefenceBase": 124.74,
+                "DefenceAdd": 4.455,
+                "HPBase": 199.584,
+                "HPAdd": 7.128,
+                "SpeedBase": 110,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "2": {
+                "AttackBase": 95.04,
+                "AttackAdd": 2.64,
+                "DefenceBase": 160.38,
+                "DefenceAdd": 4.455,
+                "HPBase": 256.608,
+                "HPAdd": 7.128,
+                "SpeedBase": 110,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "3": {
+                "AttackBase": 116.16,
+                "AttackAdd": 2.64,
+                "DefenceBase": 196.02,
+                "DefenceAdd": 4.455,
+                "HPBase": 313.632,
+                "HPAdd": 7.128,
+                "SpeedBase": 110,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "4": {
+                "AttackBase": 137.28,
+                "AttackAdd": 2.64,
+                "DefenceBase": 231.66,
+                "DefenceAdd": 4.455,
+                "HPBase": 370.656,
+                "HPAdd": 7.128,
+                "SpeedBase": 110,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "5": {
+                "AttackBase": 158.4,
+                "AttackAdd": 2.64,
+                "DefenceBase": 267.3,
+                "DefenceAdd": 4.455,
+                "HPBase": 427.68,
+                "HPAdd": 7.128,
+                "SpeedBase": 110,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "6": {
+                "AttackBase": 179.52,
+                "AttackAdd": 2.64,
+                "DefenceBase": 302.94,
+                "DefenceAdd": 4.455,
+                "HPBase": 484.704,
+                "HPAdd": 7.128,
+                "SpeedBase": 110,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            }
+        },
+        "1507": {
+            "0": {
+                "AttackBase": 73.92,
+                "AttackAdd": 3.696,
+                "DefenceBase": 66,
+                "DefenceAdd": 3.3,
+                "HPBase": 184.8,
+                "HPAdd": 9.24,
+                "SpeedBase": 107,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "1": {
+                "AttackBase": 103.488,
+                "AttackAdd": 3.696,
+                "DefenceBase": 92.4,
+                "DefenceAdd": 3.3,
+                "HPBase": 258.72,
+                "HPAdd": 9.24,
+                "SpeedBase": 107,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "2": {
+                "AttackBase": 133.056,
+                "AttackAdd": 3.696,
+                "DefenceBase": 118.8,
+                "DefenceAdd": 3.3,
+                "HPBase": 332.64,
+                "HPAdd": 9.24,
+                "SpeedBase": 107,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "3": {
+                "AttackBase": 162.624,
+                "AttackAdd": 3.696,
+                "DefenceBase": 145.2,
+                "DefenceAdd": 3.3,
+                "HPBase": 406.56,
+                "HPAdd": 9.24,
+                "SpeedBase": 107,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "4": {
+                "AttackBase": 192.192,
+                "AttackAdd": 3.696,
+                "DefenceBase": 171.6,
+                "DefenceAdd": 3.3,
+                "HPBase": 480.48,
+                "HPAdd": 9.24,
+                "SpeedBase": 107,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "5": {
+                "AttackBase": 221.76,
+                "AttackAdd": 3.696,
+                "DefenceBase": 198,
+                "DefenceAdd": 3.3,
+                "HPBase": 554.4,
+                "HPAdd": 9.24,
+                "SpeedBase": 107,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "6": {
+                "AttackBase": 251.328,
+                "AttackAdd": 3.696,
+                "DefenceBase": 224.4,
+                "DefenceAdd": 3.3,
+                "HPBase": 628.32,
+                "HPAdd": 9.24,
+                "SpeedBase": 107,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            }
+        },
         "8001": {
             "0": {
                 "AttackBase": 84.48,
@@ -7305,6 +7563,178 @@
                 "HPBase": 484.704,
                 "HPAdd": 7.128,
                 "SpeedBase": 103,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            }
+        },
+        "8009": {
+            "0": {
+                "AttackBase": 63.36,
+                "AttackAdd": 3.168,
+                "DefenceBase": 85.8,
+                "DefenceAdd": 4.29,
+                "HPBase": 147.84,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "1": {
+                "AttackBase": 88.704,
+                "AttackAdd": 3.168,
+                "DefenceBase": 120.12,
+                "DefenceAdd": 4.29,
+                "HPBase": 206.976,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "2": {
+                "AttackBase": 114.048,
+                "AttackAdd": 3.168,
+                "DefenceBase": 154.44,
+                "DefenceAdd": 4.29,
+                "HPBase": 266.112,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "3": {
+                "AttackBase": 139.392,
+                "AttackAdd": 3.168,
+                "DefenceBase": 188.76,
+                "DefenceAdd": 4.29,
+                "HPBase": 325.248,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "4": {
+                "AttackBase": 164.736,
+                "AttackAdd": 3.168,
+                "DefenceBase": 223.08,
+                "DefenceAdd": 4.29,
+                "HPBase": 384.384,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "5": {
+                "AttackBase": 190.08,
+                "AttackAdd": 3.168,
+                "DefenceBase": 257.4,
+                "DefenceAdd": 4.29,
+                "HPBase": 443.52,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "6": {
+                "AttackBase": 215.424,
+                "AttackAdd": 3.168,
+                "DefenceBase": 291.72,
+                "DefenceAdd": 4.29,
+                "HPBase": 502.656,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            }
+        },
+        "8010": {
+            "0": {
+                "AttackBase": 63.36,
+                "AttackAdd": 3.168,
+                "DefenceBase": 85.8,
+                "DefenceAdd": 4.29,
+                "HPBase": 147.84,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "1": {
+                "AttackBase": 88.704,
+                "AttackAdd": 3.168,
+                "DefenceBase": 120.12,
+                "DefenceAdd": 4.29,
+                "HPBase": 206.976,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "2": {
+                "AttackBase": 114.048,
+                "AttackAdd": 3.168,
+                "DefenceBase": 154.44,
+                "DefenceAdd": 4.29,
+                "HPBase": 266.112,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "3": {
+                "AttackBase": 139.392,
+                "AttackAdd": 3.168,
+                "DefenceBase": 188.76,
+                "DefenceAdd": 4.29,
+                "HPBase": 325.248,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "4": {
+                "AttackBase": 164.736,
+                "AttackAdd": 3.168,
+                "DefenceBase": 223.08,
+                "DefenceAdd": 4.29,
+                "HPBase": 384.384,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "5": {
+                "AttackBase": 190.08,
+                "AttackAdd": 3.168,
+                "DefenceBase": 257.4,
+                "DefenceAdd": 4.29,
+                "HPBase": 443.52,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
+                "CriticalChance": 0.05,
+                "CriticalDamage": 0.5,
+                "BaseAggro": 100
+            },
+            "6": {
+                "AttackBase": 215.424,
+                "AttackAdd": 3.168,
+                "DefenceBase": 291.72,
+                "DefenceAdd": 4.29,
+                "HPBase": 502.656,
+                "HPAdd": 7.392,
+                "SpeedBase": 106,
                 "CriticalChance": 0.05,
                 "CriticalDamage": 0.5,
                 "BaseAggro": 100
@@ -16647,6 +17077,238 @@
                 "BaseDefence": 214.2,
                 "BaseDefenceAdd": 3.15
             }
+        },
+        "23058": {
+            "0": {
+                "BaseHP": 43.2,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 28.8,
+                "BaseAttackAdd": 4.32,
+                "BaseDefence": 21,
+                "BaseDefenceAdd": 3.15
+            },
+            "1": {
+                "BaseHP": 95.04,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 63.36,
+                "BaseAttackAdd": 4.32,
+                "BaseDefence": 46.2,
+                "BaseDefenceAdd": 3.15
+            },
+            "2": {
+                "BaseHP": 164.16,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 109.44,
+                "BaseAttackAdd": 4.32,
+                "BaseDefence": 79.8,
+                "BaseDefenceAdd": 3.15
+            },
+            "3": {
+                "BaseHP": 233.28,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 155.52,
+                "BaseAttackAdd": 4.32,
+                "BaseDefence": 113.4,
+                "BaseDefenceAdd": 3.15
+            },
+            "4": {
+                "BaseHP": 302.4,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 201.6,
+                "BaseAttackAdd": 4.32,
+                "BaseDefence": 147,
+                "BaseDefenceAdd": 3.15
+            },
+            "5": {
+                "BaseHP": 371.52,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 247.68,
+                "BaseAttackAdd": 4.32,
+                "BaseDefence": 180.6,
+                "BaseDefenceAdd": 3.15
+            },
+            "6": {
+                "BaseHP": 440.64,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 293.76,
+                "BaseAttackAdd": 4.32,
+                "BaseDefence": 214.2,
+                "BaseDefenceAdd": 3.15
+            }
+        },
+        "23057": {
+            "0": {
+                "BaseHP": 52.8,
+                "BaseHPAdd": 7.92,
+                "BaseAttack": 21.6,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 24,
+                "BaseDefenceAdd": 3.6
+            },
+            "1": {
+                "BaseHP": 116.16,
+                "BaseHPAdd": 7.92,
+                "BaseAttack": 47.52,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 52.8,
+                "BaseDefenceAdd": 3.6
+            },
+            "2": {
+                "BaseHP": 200.64,
+                "BaseHPAdd": 7.92,
+                "BaseAttack": 82.08,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 91.2,
+                "BaseDefenceAdd": 3.6
+            },
+            "3": {
+                "BaseHP": 285.12,
+                "BaseHPAdd": 7.92,
+                "BaseAttack": 116.64,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 129.6,
+                "BaseDefenceAdd": 3.6
+            },
+            "4": {
+                "BaseHP": 369.6,
+                "BaseHPAdd": 7.92,
+                "BaseAttack": 151.2,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 168,
+                "BaseDefenceAdd": 3.6
+            },
+            "5": {
+                "BaseHP": 454.08,
+                "BaseHPAdd": 7.92,
+                "BaseAttack": 185.76,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 206.4,
+                "BaseDefenceAdd": 3.6
+            },
+            "6": {
+                "BaseHP": 538.56,
+                "BaseHPAdd": 7.92,
+                "BaseAttack": 220.32,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 244.8,
+                "BaseDefenceAdd": 3.6
+            }
+        },
+        "22007": {
+            "0": {
+                "BaseHP": 43.2,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 21.6,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 15,
+                "BaseDefenceAdd": 2.25
+            },
+            "1": {
+                "BaseHP": 95.04,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 47.52,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 33,
+                "BaseDefenceAdd": 2.25
+            },
+            "2": {
+                "BaseHP": 164.16,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 82.08,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 57,
+                "BaseDefenceAdd": 2.25
+            },
+            "3": {
+                "BaseHP": 233.28,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 116.64,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 81,
+                "BaseDefenceAdd": 2.25
+            },
+            "4": {
+                "BaseHP": 302.4,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 151.2,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 105,
+                "BaseDefenceAdd": 2.25
+            },
+            "5": {
+                "BaseHP": 371.52,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 185.76,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 129,
+                "BaseDefenceAdd": 2.25
+            },
+            "6": {
+                "BaseHP": 440.64,
+                "BaseHPAdd": 6.48,
+                "BaseAttack": 220.32,
+                "BaseAttackAdd": 3.24,
+                "BaseDefence": 153,
+                "BaseDefenceAdd": 2.25
+            }
+        },
+        "23059": {
+            "0": {
+                "BaseHP": 62.4,
+                "BaseHPAdd": 9.36,
+                "BaseAttack": 19.2,
+                "BaseAttackAdd": 2.88,
+                "BaseDefence": 21,
+                "BaseDefenceAdd": 3.15
+            },
+            "1": {
+                "BaseHP": 137.28,
+                "BaseHPAdd": 9.36,
+                "BaseAttack": 42.24,
+                "BaseAttackAdd": 2.88,
+                "BaseDefence": 46.2,
+                "BaseDefenceAdd": 3.15
+            },
+            "2": {
+                "BaseHP": 237.12,
+                "BaseHPAdd": 9.36,
+                "BaseAttack": 72.96,
+                "BaseAttackAdd": 2.88,
+                "BaseDefence": 79.8,
+                "BaseDefenceAdd": 3.15
+            },
+            "3": {
+                "BaseHP": 336.96,
+                "BaseHPAdd": 9.36,
+                "BaseAttack": 103.68,
+                "BaseAttackAdd": 2.88,
+                "BaseDefence": 113.4,
+                "BaseDefenceAdd": 3.15
+            },
+            "4": {
+                "BaseHP": 436.8,
+                "BaseHPAdd": 9.36,
+                "BaseAttack": 134.4,
+                "BaseAttackAdd": 2.88,
+                "BaseDefence": 147,
+                "BaseDefenceAdd": 3.15
+            },
+            "5": {
+                "BaseHP": 536.64,
+                "BaseHPAdd": 9.36,
+                "BaseAttack": 165.12,
+                "BaseAttackAdd": 2.88,
+                "BaseDefence": 180.6,
+                "BaseDefenceAdd": 3.15
+            },
+            "6": {
+                "BaseHP": 636.48,
+                "BaseHPAdd": 9.36,
+                "BaseAttack": 195.84,
+                "BaseAttackAdd": 2.88,
+                "BaseDefence": 214.2,
+                "BaseDefenceAdd": 3.15
+            }
         }
     },
     "equipmentSkill": {
@@ -20420,6 +21082,114 @@
                     "AttackAddedRatio": 0.4
                 }
             }
+        },
+        "23058": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.6
+                }
+            },
+            "2": {
+                "props": {
+                    "CriticalDamageBase": 0.75
+                }
+            },
+            "3": {
+                "props": {
+                    "CriticalDamageBase": 0.9
+                }
+            },
+            "4": {
+                "props": {
+                    "CriticalDamageBase": 1.05
+                }
+            },
+            "5": {
+                "props": {
+                    "CriticalDamageBase": 1.2
+                }
+            }
+        },
+        "23057": {
+            "1": {
+                "props": {
+                    "SpeedAddedRatio": 0.18
+                }
+            },
+            "2": {
+                "props": {
+                    "SpeedAddedRatio": 0.21
+                }
+            },
+            "3": {
+                "props": {
+                    "SpeedAddedRatio": 0.24
+                }
+            },
+            "4": {
+                "props": {
+                    "SpeedAddedRatio": 0.27
+                }
+            },
+            "5": {
+                "props": {
+                    "SpeedAddedRatio": 0.3
+                }
+            }
+        },
+        "22007": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.12
+                }
+            },
+            "2": {
+                "props": {
+                    "CriticalDamageBase": 0.15
+                }
+            },
+            "3": {
+                "props": {
+                    "CriticalDamageBase": 0.18
+                }
+            },
+            "4": {
+                "props": {
+                    "CriticalDamageBase": 0.21
+                }
+            },
+            "5": {
+                "props": {
+                    "CriticalDamageBase": 0.24
+                }
+            }
+        },
+        "23059": {
+            "1": {
+                "props": {
+                    "HPAddedRatio": 0.3
+                }
+            },
+            "2": {
+                "props": {
+                    "HPAddedRatio": 0.375
+                }
+            },
+            "3": {
+                "props": {
+                    "HPAddedRatio": 0.45
+                }
+            },
+            "4": {
+                "props": {
+                    "HPAddedRatio": 0.525
+                }
+            },
+            "5": {
+                "props": {
+                    "HPAddedRatio": 0.6
+                }
+            }
         }
     },
     "relic": {
@@ -20720,6 +21490,26 @@
                 "2": {
                     "props": {
                         "SpeedAddedRatio": 0.06
+                    }
+                },
+                "4": {
+                    "props": {}
+                }
+            },
+            "131": {
+                "2": {
+                    "props": {
+                        "AttackAddedRatio": 0.12
+                    }
+                },
+                "4": {
+                    "props": {}
+                }
+            },
+            "132": {
+                "2": {
+                    "props": {
+                        "HPAddedRatio": 0.12
                     }
                 },
                 "4": {
@@ -22361,6 +23151,76 @@
                 }
             }
         },
+        "11102201": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.04
+                }
+            }
+        },
+        "11102202": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.053
+                }
+            }
+        },
+        "11102203": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.04
+                }
+            }
+        },
+        "11102204": {
+            "1": {
+                "props": {
+                    "DefenceAddedRatio": 0.05
+                }
+            }
+        },
+        "11102205": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.06
+                }
+            }
+        },
+        "11102206": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.08
+                }
+            }
+        },
+        "11102207": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.06
+                }
+            }
+        },
+        "11102208": {
+            "1": {
+                "props": {
+                    "DefenceAddedRatio": 0.075
+                }
+            }
+        },
+        "11102209": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.107
+                }
+            }
+        },
+        "11102210": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.08
+                }
+            }
+        },
         "1501201": {
             "1": {
                 "props": {
@@ -22638,6 +23498,139 @@
             "1": {
                 "props": {
                     "StatusResistanceBase": 0.08
+                }
+            }
+        },
+        "11004201": {
+            "1": {
+                "props": {
+                    "StatusProbabilityBase": 0.04
+                }
+            }
+        },
+        "11004202": {
+            "1": {
+                "props": {
+                    "ImaginaryAddedRatio": 0.032
+                }
+            }
+        },
+        "11004203": {
+            "1": {
+                "props": {
+                    "StatusProbabilityBase": 0.04
+                }
+            }
+        },
+        "11004204": {
+            "1": {
+                "props": {
+                    "StatusResistanceBase": 0.04
+                }
+            }
+        },
+        "11004205": {
+            "1": {
+                "props": {
+                    "StatusProbabilityBase": 0.06
+                }
+            }
+        },
+        "11004206": {
+            "1": {
+                "props": {
+                    "ImaginaryAddedRatio": 0.048
+                }
+            }
+        },
+        "11004207": {
+            "1": {
+                "props": {
+                    "StatusProbabilityBase": 0.06
+                }
+            }
+        },
+        "11004208": {
+            "1": {
+                "props": {
+                    "StatusResistanceBase": 0.06
+                }
+            }
+        },
+        "11217201": {
+            "1": {
+                "props": {
+                    "HPAddedRatio": 0.04
+                }
+            }
+        },
+        "11217202": {
+            "1": {
+                "props": {
+                    "StatusResistanceBase": 0.04
+                }
+            }
+        },
+        "11217203": {
+            "1": {
+                "props": {
+                    "HPAddedRatio": 0.04
+                }
+            }
+        },
+        "11217204": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 2
+                }
+            }
+        },
+        "11217205": {
+            "1": {
+                "props": {
+                    "HPAddedRatio": 0.06
+                }
+            }
+        },
+        "11217206": {
+            "1": {
+                "props": {
+                    "StatusResistanceBase": 0.06
+                }
+            }
+        },
+        "11217207": {
+            "1": {
+                "props": {
+                    "HPAddedRatio": 0.06
+                }
+            }
+        },
+        "11217208": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 3
+                }
+            }
+        },
+        "11217209": {
+            "1": {
+                "props": {
+                    "StatusResistanceBase": 0.08
+                }
+            }
+        },
+        "11217210": {
+            "1": {
+                "props": {
+                    "HPAddedRatio": 0.08
+                }
+            }
+        },
+        "11004210": {
+            "1": {
+                "props": {
+                    "StatusProbabilityBase": 0.08
                 }
             }
         },
@@ -23562,6 +24555,13 @@
             "1": {
                 "props": {
                     "CriticalDamageBase": 0.107
+                }
+            }
+        },
+        "11004209": {
+            "1": {
+                "props": {
+                    "ImaginaryAddedRatio": 0.064
                 }
             }
         },
@@ -25091,6 +26091,76 @@
                 }
             }
         },
+        "11310201": {
+            "1": {
+                "props": {
+                    "BreakDamageAddedRatioBase": 0.053
+                }
+            }
+        },
+        "11310202": {
+            "1": {
+                "props": {
+                    "StatusResistanceBase": 0.04
+                }
+            }
+        },
+        "11310203": {
+            "1": {
+                "props": {
+                    "BreakDamageAddedRatioBase": 0.053
+                }
+            }
+        },
+        "11310204": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 2
+                }
+            }
+        },
+        "11310205": {
+            "1": {
+                "props": {
+                    "BreakDamageAddedRatioBase": 0.08
+                }
+            }
+        },
+        "11310206": {
+            "1": {
+                "props": {
+                    "StatusResistanceBase": 0.06
+                }
+            }
+        },
+        "11310207": {
+            "1": {
+                "props": {
+                    "BreakDamageAddedRatioBase": 0.08
+                }
+            }
+        },
+        "11310208": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 3
+                }
+            }
+        },
+        "11310209": {
+            "1": {
+                "props": {
+                    "StatusResistanceBase": 0.08
+                }
+            }
+        },
+        "11310210": {
+            "1": {
+                "props": {
+                    "BreakDamageAddedRatioBase": 0.107
+                }
+            }
+        },
         "1111201": {
             "1": {
                 "props": {
@@ -25441,6 +26511,76 @@
                 }
             }
         },
+        "8009201": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.04
+                }
+            }
+        },
+        "8009202": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.026999999
+                }
+            }
+        },
+        "8009203": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.04
+                }
+            }
+        },
+        "8009204": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.053
+                }
+            }
+        },
+        "8009205": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.06
+                }
+            }
+        },
+        "8009206": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.04
+                }
+            }
+        },
+        "8009207": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.06
+                }
+            }
+        },
+        "8009208": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.08
+                }
+            }
+        },
+        "8009209": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.053
+                }
+            }
+        },
+        "8009210": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.08
+                }
+            }
+        },
         "1308201": {
             "1": {
                 "props": {
@@ -25788,6 +26928,76 @@
             "1": {
                 "props": {
                     "FireAddedRatio": 0.064
+                }
+            }
+        },
+        "1505201": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.026999999
+                }
+            }
+        },
+        "1505202": {
+            "1": {
+                "props": {
+                    "ElationDamageAddedRatioBase": 0.04
+                }
+            }
+        },
+        "1505203": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.026999999
+                }
+            }
+        },
+        "1505204": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 2
+                }
+            }
+        },
+        "1505205": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.04
+                }
+            }
+        },
+        "1505206": {
+            "1": {
+                "props": {
+                    "ElationDamageAddedRatioBase": 0.06
+                }
+            }
+        },
+        "1505207": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.04
+                }
+            }
+        },
+        "1505208": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 3
+                }
+            }
+        },
+        "1505209": {
+            "1": {
+                "props": {
+                    "ElationDamageAddedRatioBase": 0.08
+                }
+            }
+        },
+        "1505210": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.053
                 }
             }
         },
@@ -26194,6 +27404,76 @@
             "1": {
                 "props": {
                     "SpeedDelta": 3
+                }
+            }
+        },
+        "8010201": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.04
+                }
+            }
+        },
+        "8010202": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.026999999
+                }
+            }
+        },
+        "8010203": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.04
+                }
+            }
+        },
+        "8010204": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.053
+                }
+            }
+        },
+        "8010205": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.06
+                }
+            }
+        },
+        "8010206": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.04
+                }
+            }
+        },
+        "8010207": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.06
+                }
+            }
+        },
+        "8010208": {
+            "1": {
+                "props": {
+                    "CriticalDamageBase": 0.08
+                }
+            }
+        },
+        "8010209": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.053
+                }
+            }
+        },
+        "8010210": {
+            "1": {
+                "props": {
+                    "AttackAddedRatio": 0.08
                 }
             }
         },
@@ -26614,6 +27894,76 @@
             "1": {
                 "props": {
                     "HPAddedRatio": 0.08
+                }
+            }
+        },
+        "1506201": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.026999999
+                }
+            }
+        },
+        "1506202": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 2
+                }
+            }
+        },
+        "1506203": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.026999999
+                }
+            }
+        },
+        "1506204": {
+            "1": {
+                "props": {
+                    "ElationDamageAddedRatioBase": 0.04
+                }
+            }
+        },
+        "1506205": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.04
+                }
+            }
+        },
+        "1506206": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 3
+                }
+            }
+        },
+        "1506207": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.04
+                }
+            }
+        },
+        "1506208": {
+            "1": {
+                "props": {
+                    "ElationDamageAddedRatioBase": 0.06
+                }
+            }
+        },
+        "1506209": {
+            "1": {
+                "props": {
+                    "SpeedDelta": 4
+                }
+            }
+        },
+        "1506210": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.053
                 }
             }
         },
@@ -27195,6 +28545,76 @@
             "1": {
                 "props": {
                     "SpeedDelta": 2
+                }
+            }
+        },
+        "1507201": {
+            "1": {
+                "props": {
+                    "FireAddedRatio": 0.032
+                }
+            }
+        },
+        "1507202": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.026999999
+                }
+            }
+        },
+        "1507203": {
+            "1": {
+                "props": {
+                    "FireAddedRatio": 0.032
+                }
+            }
+        },
+        "1507204": {
+            "1": {
+                "props": {
+                    "HPAddedRatio": 0.04
+                }
+            }
+        },
+        "1507205": {
+            "1": {
+                "props": {
+                    "FireAddedRatio": 0.048
+                }
+            }
+        },
+        "1507206": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.04
+                }
+            }
+        },
+        "1507207": {
+            "1": {
+                "props": {
+                    "FireAddedRatio": 0.048
+                }
+            }
+        },
+        "1507208": {
+            "1": {
+                "props": {
+                    "HPAddedRatio": 0.06
+                }
+            }
+        },
+        "1507209": {
+            "1": {
+                "props": {
+                    "CriticalChanceBase": 0.053
+                }
+            }
+        },
+        "1507210": {
+            "1": {
+                "props": {
+                    "FireAddedRatio": 0.064
                 }
             }
         },
