@@ -90,6 +90,14 @@ public class CreateUserService {
         return null;
     }
 
+    public String getUserBio(String uid){
+        User user = getUser(uid);
+        if(user != null){
+            return user.getDetailInfo().getSignature();
+        }
+        return "Error getting user's signature.";
+    }
+
     // this returns a user from enka (doesn't check)
     // THIS ONLY RETURNS A USER DOESN'T SAVE THEM
     public User fetchUserFromEnka(String uid){
