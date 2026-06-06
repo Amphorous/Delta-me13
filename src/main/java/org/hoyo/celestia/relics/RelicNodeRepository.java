@@ -86,9 +86,146 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
     """)
     List<BuildProjection> findBuildsForRelic(String relicId);
 
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
+    
+        WITH r,
+             reduce(
+                 statValue = 0.0,
+                 x IN collect(sa) |
+                 statValue +
+                 CASE
+                     WHEN x.type = $sortBy THEN toFloat(x.value)
+                     ELSE 0
+                 END
+             ) AS sortValue
+    
+        ORDER BY sortValue ASC, r.relicId
+        SKIP $skip
+        LIMIT $limit
+    
+        OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
+    
+        RETURN r, collect(rel), collect(sa)
+    """)
+    List<RelicNode> findRelicsPagedSortedByStatAsc(
+            String uid,
+            String sortBy,
+            long skip,
+            long limit
+    );
 
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
+    
+        WITH r,
+             reduce(
+                 statValue = 0.0,
+                 x IN collect(sa) |
+                 statValue +
+                 CASE
+                     WHEN x.type = $sortBy THEN toFloat(x.value)
+                     ELSE 0
+                 END
+             ) AS sortValue
+    
+        ORDER BY sortValue DESC, r.relicId
+        SKIP $skip
+        LIMIT $limit
+    
+        OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
+    
+        RETURN r, collect(rel), collect(sa)
+    """)
+    List<RelicNode> findRelicsPagedSortedByStatDesc(
+            String uid,
+            String sortBy,
+            long skip,
+            long limit
+    );
 
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
+    
+        WITH r,
+             reduce(
+                 cv = 0.0,
+                 x IN collect(sa) |
+                 cv +
+                 CASE
+                     WHEN x.type = 'CriticalChance' THEN toFloat(x.value) * 2
+                     WHEN x.type = 'CriticalDamage' THEN toFloat(x.value)
+                     ELSE 0
+                 END
+             ) AS CV
+    
+        ORDER BY CV ASC, r.relicId
+        SKIP $skip
+        LIMIT $limit
+    
+        OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
+    
+        RETURN r, collect(rel), collect(sa)
+    """)
+    List<RelicNode> findRelicsPagedSortedByCVAsc(
+            String uid,
+            long skip,
+            long limit
+    );
 
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
+    
+        WITH r,
+             reduce(
+                 cv = 0.0,
+                 x IN collect(sa) |
+                 cv +
+                 CASE
+                     WHEN x.type = 'CriticalChance' THEN toFloat(x.value) * 2
+                     WHEN x.type = 'CriticalDamage' THEN toFloat(x.value)
+                     ELSE 0
+                 END
+             ) AS CV
+    
+        ORDER BY CV DESC, r.relicId
+        SKIP $skip
+        LIMIT $limit
+    
+        OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
+    
+        RETURN r, collect(rel), collect(sa)
+    """)
+    List<RelicNode> findRelicsPagedSortedByCVDesc(
+            String uid,
+            long skip,
+            long limit
+    );
 
-
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
+    
+        WHERE sa.type = $filterBy
+    
+        WITH DISTINCT r
+    
+        ORDER BY r.relicId
+        SKIP $skip
+        LIMIT $limit
+    
+        OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
+    
+        RETURN r, collect(rel), collect(sa)
+    """)
+    List<RelicNode> findRelicsPagedFiltered(
+            String uid,
+            String filterBy,
+            long skip,
+            long limit
+    );
 }
