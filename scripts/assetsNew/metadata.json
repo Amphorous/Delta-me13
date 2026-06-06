@@ -8,7 +8,7 @@
         "sha": "0c717cdd38c84b56702660fb7dd95930e03b9660"
       },
       "hsr": {
-        "sha": "2dd6901bfaa3d4204077628b1385d14bdba7762d"
+        "sha": "5d31bf3bca3b3e511e317351e5e15b9006c7d5ef"
       },
       "pfps": {
         "sha": "6e5d8fdf14b904178920d8d8c96d72818dfb2c48"
@@ -30,5 +30,5 @@
       }
     }
   ],
-  "version": "v6"
+  "version": "v7"
 }
