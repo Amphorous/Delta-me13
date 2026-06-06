@@ -49,7 +49,21 @@ public class UserController {
     }
 
     @GetMapping("/relics/{uid}/{pageNumber}")
-    public ResponseEntity<List<RelicProjectionDTO>> getUserRelics(@PathVariable String uid, @PathVariable int pageNumber) {
+    public ResponseEntity<List<RelicProjectionDTO>> getUserRelics(
+            @PathVariable String uid,
+            @PathVariable int pageNumber,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String filterBy,
+            @RequestParam(defaultValue = "DESC") String order
+    ) {
+        if (filterBy != null) {
+            return fetchRelicService.getUserRelicsForDisplayFilteredBy(uid, pageNumber, filterBy);
+        }
+
+        if (sortBy != null) {
+            return fetchRelicService.getUserRelicsForDisplaySortedBy(uid, pageNumber, sortBy, order);
+        }
+
         return fetchRelicService.getUserRelicsForDisplay(uid, pageNumber);
     }
 
