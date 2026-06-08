@@ -2,32 +2,25 @@ package org.hoyo.celestia.user.service;
 
 import feign.Feign;
 import feign.jackson.JacksonDecoder;
+import lombok.RequiredArgsConstructor;
 import org.hoyo.celestia.subloaders.service.SubloaderService;
 import org.hoyo.celestia.timeouts.service.TimeoutService;
 import org.hoyo.celestia.user.UpdateStatus;
 import org.hoyo.celestia.user.repository.UserRepository;
 import org.hoyo.celestia.user.model.User;
 import org.hoyo.celestia.user.validate.ValidateUid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CreateUserService {
 
     private final ValidateUid validateUid;
     private final UserRepository userRepository;
     private final TimeoutService timeoutService;
     private final SubloaderService subloaderService;
-
-    public CreateUserService(ValidateUid validateUid, UserRepository userRepository, TimeoutService timeoutService, SubloaderService subloaderService) {
-        this.validateUid = validateUid;
-        this.userRepository = userRepository;
-        this.timeoutService = timeoutService;
-        this.subloaderService = subloaderService;
-    }
 
     //check mongo if user by uid exists
     //if no then enka call and create user
@@ -38,7 +31,7 @@ public class CreateUserService {
             return UpdateStatus.BAD_UID;
         }
         if(!timeoutService.canIEnkaCallYet(uid)){
-            //timeout isnt ready
+            //timeout isn't ready
             return UpdateStatus.ENKA_TIMEOUT;
         }
 
