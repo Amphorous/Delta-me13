@@ -18,57 +18,61 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
     Boolean hasBuilds(@Param("uid") String uid, @Param("avatarId") String avatarId);
 
     @Query("""
-            RETURN EXISTS{
-                MATCH (u:UIDNode {uid: $uid})-[:HAS_BUILD]->(b:BuildNode {avatarId: $avatarId, level: $level, skillListString: $skillListString, isStatic: true})
-            }
+            MATCH (u:UIDNode {uid: $uid})-[:HAS_BUILD]->(b:BuildNode {
+                    avatarId: $avatarId,
+                    level: $level,
+                    skillListString: $skillListString,
+                    isStatic: true
+                })
+                RETURN COUNT(b) > 0
             """)
     Boolean hasLevelsOnStaticBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("skillListString") String skillListString, @Param("level") Integer level);
 
     @Query("""
-    MATCH (u:UIDNode {uid: $uid})
-
-    OPTIONAL MATCH (u)-[:HAS_BUILD]->(old:BuildNode {avatarId: $avatarId, isStatic: $isStatic})-[:FIGHT_PROPS]->(f:FightPropNode)
-    DETACH DELETE f
-    DETACH DELETE old
-
-    CREATE (b1:BuildNode {
-        level: $level,
-        skillListString: $skillListString,
-        isStatic: $isStatic,
-        avatarId: $avatarId,
-        buildName: $buildName,
-        isHidden: $isHidden
-    })
-    CREATE (u)-[:HAS_BUILD]->(b1)
-
-    WITH u, b1, $fightPropMap AS fightPropMap, $relicIds AS relicIds
-
-    CALL apoc.create.node(['FightPropNode'], fightPropMap) YIELD node AS f1
-    CREATE (b1)-[:FIGHT_PROPS]->(f1)
-
-    WITH u, b1, relicIds
-    UNWIND relicIds AS rid
-    MATCH (u)-[:OWNS_RELIC]->(r:RelicNode {relicId: rid})
-    CREATE (b1)-[:EQUIPS_RELIC]->(r)
+        MATCH (u:UIDNode {uid: $uid})
     
-    WITH DISTINCT b1, $weaponId AS weaponId,
-           $weaponLevel AS weaponLevel,
-           $refineWeapon AS refineWeapon,
-           $weaponAscension AS weaponAscension,
-           $baseHP AS baseHP,
-           $baseDefence AS baseDefence,
-           $baseAtk AS baseAtk
-    MATCH (w:WeaponNode {weaponId: weaponId})
-    CREATE (b1)-[:EQUIPS_WEAPON {
-           weaponLevel: weaponLevel,
-           weaponRefinement: refineWeapon,
-           weaponAscension: weaponAscension,
-           baseHP: baseHP,
-           baseDefence: baseDefence,
-           baseAtk: baseAtk
-    }]->(w)
-
-    RETURN DISTINCT b1
+        OPTIONAL MATCH (u)-[:HAS_BUILD]->(old:BuildNode {avatarId: $avatarId, isStatic: $isStatic})-[:FIGHT_PROPS]->(f:FightPropNode)
+        DETACH DELETE f
+        DETACH DELETE old
+    
+        CREATE (b1:BuildNode {
+            level: $level,
+            skillListString: $skillListString,
+            isStatic: $isStatic,
+            avatarId: $avatarId,
+            buildName: $buildName,
+            isHidden: $isHidden
+        })
+        CREATE (u)-[:HAS_BUILD]->(b1)
+    
+        WITH u, b1, $fightPropMap AS fightPropMap, $relicIds AS relicIds
+    
+        CALL apoc.create.node(['FightPropNode'], fightPropMap) YIELD node AS f1
+        CREATE (b1)-[:FIGHT_PROPS]->(f1)
+    
+        WITH u, b1, relicIds
+        UNWIND relicIds AS rid
+        MATCH (u)-[:OWNS_RELIC]->(r:RelicNode {relicId: rid})
+        CREATE (b1)-[:EQUIPS_RELIC]->(r)
+    
+        WITH DISTINCT b1, $weaponId AS weaponId,
+               $weaponLevel AS weaponLevel,
+               $refineWeapon AS refineWeapon,
+               $weaponAscension AS weaponAscension,
+               $baseHP AS baseHP,
+               $baseDefence AS baseDefence,
+               $baseAtk AS baseAtk
+        MATCH (w:WeaponNode {weaponId: weaponId})
+        CREATE (b1)-[:EQUIPS_WEAPON {
+               weaponLevel: weaponLevel,
+               weaponRefinement: refineWeapon,
+               weaponAscension: weaponAscension,
+               baseHP: baseHP,
+               baseDefence: baseDefence,
+               baseAtk: baseAtk
+        }]->(w)
+    
+        RETURN DISTINCT b1
     """)
     BuildNode removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodesAndAlsoLinkTheWeaponNode(
             @Param("uid") String uid,
@@ -90,33 +94,33 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
     );
 
     @Query("""
-    MATCH (u:UIDNode {uid: $uid})
-
-    OPTIONAL MATCH (u)-[:HAS_BUILD]->(old:BuildNode {avatarId: $avatarId, isStatic: $isStatic})-[:FIGHT_PROPS]->(f:FightPropNode)
-    DETACH DELETE f
-    DETACH DELETE old
-
-    CREATE (b1:BuildNode {
-        level: $level,
-        skillListString: $skillListString,
-        isStatic: $isStatic,
-        avatarId: $avatarId,
-        buildName: $buildName,
-        isHidden: $isHidden
-    })
-    CREATE (u)-[:HAS_BUILD]->(b1)
-
-    WITH u, b1, $fightPropMap AS fightPropMap, $relicIds AS relicIds
-
-    CALL apoc.create.node(['FightPropNode'], fightPropMap) YIELD node AS f1
-    CREATE (b1)-[:FIGHT_PROPS]->(f1)
-
-    WITH u, b1, relicIds
-    UNWIND relicIds AS rid
-    MATCH (u)-[:OWNS_RELIC]->(r:RelicNode {relicId: rid})
-    CREATE (b1)-[:EQUIPS_RELIC]->(r)
-
-    RETURN DISTINCT b1
+        MATCH (u:UIDNode {uid: $uid})
+    
+        OPTIONAL MATCH (u)-[:HAS_BUILD]->(old:BuildNode {avatarId: $avatarId, isStatic: $isStatic})-[:FIGHT_PROPS]->(f:FightPropNode)
+        DETACH DELETE f
+        DETACH DELETE old
+    
+        CREATE (b1:BuildNode {
+            level: $level,
+            skillListString: $skillListString,
+            isStatic: $isStatic,
+            avatarId: $avatarId,
+            buildName: $buildName,
+            isHidden: $isHidden
+        })
+        CREATE (u)-[:HAS_BUILD]->(b1)
+    
+        WITH u, b1, $fightPropMap AS fightPropMap, $relicIds AS relicIds
+    
+        CALL apoc.create.node(['FightPropNode'], fightPropMap) YIELD node AS f1
+        CREATE (b1)-[:FIGHT_PROPS]->(f1)
+    
+        WITH u, b1, relicIds
+        UNWIND relicIds AS rid
+        MATCH (u)-[:OWNS_RELIC]->(r:RelicNode {relicId: rid})
+        CREATE (b1)-[:EQUIPS_RELIC]->(r)
+    
+        RETURN DISTINCT b1
     """)
     BuildNode removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodes(
             @Param("uid") String uid,
@@ -129,5 +133,96 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("fightPropMap") Map<String, Object> fightPropMap,
             @Param("relicIds") Set<String> relicIds
     );
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:HAS_BUILD]->(b:BuildNode {
+                    avatarId: $avatarId,
+                    buildName: $buildName,
+                    isStatic: false
+                })
+        RETURN COUNT(b) > 0
+    """)
+    Boolean hasBuildName(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName);
+
+    @Query("""
+            MATCH (u:UIDNode {uid: $uid})
+            
+            MATCH (u)-[:HAS_BUILD]->(b:BuildNode {
+                isStatic: true,
+                avatarId: $avatarId
+            })-[:FIGHT_PROPS]->(f:FightPropNode)
+            
+            CALL apoc.refactor.cloneNodes([b], true)
+            YIELD output AS buildClone
+            
+            SET buildClone.isStatic = false
+            SET buildClone.buildName = $buildName
+            
+            WITH buildClone, f
+            MATCH (buildClone)-[r:FIGHT_PROPS]->()
+            DELETE r
+            
+            WITH buildClone, f
+            CALL apoc.refactor.cloneNodes([f])
+            YIELD output AS fNew
+            
+            WITH buildClone, fNew
+            CREATE (buildClone)-[:FIGHT_PROPS]->(fNew)
+            
+            RETURN buildClone
+            """)
+    void createBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName);
+
+    @Query("""
+            MATCH (u:UIDNode {uid: $uid})
+            
+            MATCH (u)-[:HAS_BUILD]->(b:BuildNode {
+                isStatic: false,
+                avatarId: $avatarId,
+                buildName: $buildNameOld
+            })
+            
+            SET b.buildName = $buildNameNew
+            RETURN b
+            """)
+    void editBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildNameOld") String buildNameOld, @Param("buildNameNew") String buildNameNew);
+
+    @Query("""
+            MATCH (u:UIDNode {uid: $uid})
+            
+            MATCH (u)-[:HAS_BUILD]->(b:BuildNode {
+                isStatic: false,
+                avatarId: $avatarId,
+                buildName: $buildName
+            })-[:FIGHT_PROPS]->(f:FightPropNode)
+            
+            DETACH DELETE b, f
+            """)
+    void deleteBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName);
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:HAS_BUILD]->(b:BuildNode {
+                    avatarId: $avatarId,
+                    buildName: $buildName,
+                    isStatic: $isStatic
+                })
+        RETURN COUNT(b) > 0
+    """)
+    Boolean hasBuildNameWithStaticParam(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName, @Param("isStatic") Boolean isStatic);
+
+    @Query("""
+            MATCH (u:UIDNode {uid: $uid})
+            
+            MATCH (u)-[:HAS_BUILD]->(b:BuildNode {
+                isStatic: $isStatic,
+                avatarId: $avatarId,
+                buildName: $buildName
+            })
+            
+            SET b.isHidden = $hide
+            
+            RETURN b
+            """)
+    void hideBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName, @Param("isStatic") Boolean isStatic, @Param("hide") Boolean hide);
 
 }
