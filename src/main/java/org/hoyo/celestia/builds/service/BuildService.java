@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.hoyo.celestia.builds.BuildNodeRepository;
 import org.hoyo.celestia.builds.model.BuildEditResultDTO;
-import org.hoyo.celestia.builds.model.BuildProjectionDTO;
+import org.hoyo.celestia.builds.model.BuildNode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -153,8 +153,4 @@ public class BuildService {
         return ResponseEntity.badRequest().body(buildEditResultDTO);
     }
 
-    public ResponseEntity<List<BuildProjectionDTO>> getAllBuilds(String uid){
-        // return all builds which are visible
-        return null;
-    }
 }
