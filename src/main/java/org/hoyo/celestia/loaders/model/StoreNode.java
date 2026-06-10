@@ -1,7 +1,7 @@
 package org.hoyo.celestia.loaders.model;
 
 import lombok.Data;
-import org.hoyo.celestia.loaders.model.relations.ContainsWeapon;
+import org.hoyo.celestia.loaders.model.relations.ContainsWeaponRelationship;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -20,5 +20,5 @@ public class StoreNode {
     //relation going from store to weapon
     //props: rarity, path, weaponId
     @Relationship(type = "CONTAINS_WEAPON", direction = Relationship.Direction.OUTGOING)
-    private List<ContainsWeapon> containsWeaponList;
+    private List<ContainsWeaponRelationship> containsWeaponRelationshipList;
 }

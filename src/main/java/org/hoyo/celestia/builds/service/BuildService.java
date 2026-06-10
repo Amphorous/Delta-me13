@@ -4,13 +4,16 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.hoyo.celestia.builds.BuildNodeRepository;
 import org.hoyo.celestia.builds.model.BuildEditResultDTO;
+import org.hoyo.celestia.builds.model.BuildProjectionDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class BuildEditService {
+public class BuildService {
 
     private final BuildNodeRepository buildNodeRepository;
 
@@ -148,5 +151,10 @@ public class BuildEditService {
         buildEditResultDTO.setStatus(false);
         buildEditResultDTO.setMessage("A custom build with the given buildName does not exist.");
         return ResponseEntity.badRequest().body(buildEditResultDTO);
+    }
+
+    public ResponseEntity<List<BuildProjectionDTO>> getAllBuilds(String uid){
+        // return all builds which are visible
+        return null;
     }
 }
