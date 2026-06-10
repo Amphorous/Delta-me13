@@ -101,7 +101,7 @@ public class SubloaderService {
 
                 Map<String, Object> fightPropMapObject = fightPropNode.getStats().entrySet().stream()
                         .collect(Collectors.toMap(
-                                Map.Entry::getKey,
+                                e -> "stats." + e.getKey(),
                                 e -> (Object) e.getValue()
                         ));
 

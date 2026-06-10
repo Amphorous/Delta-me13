@@ -14,13 +14,13 @@ public class EquipsWeaponRelationship {
     private Long id;
 
     @Property("baseAtk")
-    private Float baseAtk;
+    private Double baseAtk;
 
     @Property("baseDefence")
-    private Float baseDefence;
+    private Double baseDefence;
 
     @Property("baseHP")
-    private Float baseHP;
+    private Double baseHP;
 
     @Property("weaponLevel")
     private Integer weaponLevel;
