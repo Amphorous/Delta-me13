@@ -1,5 +1,6 @@
 package org.hoyo.celestia.relics.service;
 
+import lombok.RequiredArgsConstructor;
 import org.hoyo.celestia.relics.RelicNodeRepository;
 import org.hoyo.celestia.relics.SubAffixNodeRepository;
 import org.hoyo.celestia.relics.model.RelicNode;
@@ -12,15 +13,10 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class CreateRelicService {
 
     private final RelicNodeRepository relicNodeRepository;
-    private final SubAffixNodeRepository subAffixNodeRepository;
-
-    public CreateRelicService(RelicNodeRepository relicNodeRepository, SubAffixNodeRepository subAffixNodeRepository) {
-        this.relicNodeRepository = relicNodeRepository;
-        this.subAffixNodeRepository = subAffixNodeRepository;
-    }
 
     public static String calculateRelicId(Relic relic){
         try {
@@ -59,16 +55,24 @@ public class CreateRelicService {
 
         RelicNode relicNode = getRelicNode(relic);
         List<SubAffixNode> subAffixNodes = getSubAffixNodes(relic);
-        Double cv = 0.0;
-
-
-        //cv = calcCv(relicNode, subAffixNodes);
-        //TODO write the calcCV function and the getCV function
-
-        String position = relicNode.getType();
-
-        //cv -= relicNodeRepository.getCV(uid, avatarId, position); //this repo function returns the CV of the relic if it exists, 0 otherwise
-
+        Double CR=0.0;
+        Double CD=0.0;
+        Double CV=0.0;
+        for(SubAffixNode subAffixNode : subAffixNodes){
+            if(subAffixNode.getType().equalsIgnoreCase("CriticalChance")){
+                CR+=subAffixNode.getValue()*100;
+            }
+            else if(subAffixNode.getType().equalsIgnoreCase("CriticalDamage")){
+                CD=subAffixNode.getValue()*100;
+            }
+        }
+        if (relicNode.getMainAffixId().equalsIgnoreCase("CriticalChanceBase")) {
+            CR+=relicNode.getMainValue()*100;
+        }
+        else if (relicNode.getMainAffixId().equalsIgnoreCase("CriticalDamageBase")) {
+            CD+=relicNode.getMainValue()*100;
+        }
+        CV=(CR*2)+CD;
         relicNodeRepository.insertRelic(
                 relicId,
                 uid,
@@ -80,12 +84,11 @@ public class CreateRelicService {
                 relicNode.getSetName(),
                 relicNode.getMainType(),
                 relicNode.getMainValue(),
+                CV,
                 convertSubAffixes(subAffixNodes)
+
         );
-
-
-
-        return cv;
+        return CV;
     }
 
     private static List<SubAffixNode> getSubAffixNodes(Relic relic) {
@@ -106,7 +109,6 @@ public class CreateRelicService {
 
     private static RelicNode getRelicNode(Relic relic) {
         RelicNode relicNode = new RelicNode();
-        //relicNode.setRelicId(calculateRelicId(relic));
         relicNode.setMainAffixId(String.valueOf(relic.getMainAffixId()));
         relicNode.setTid(relic.getTid());
         relicNode.setType(String.valueOf(relic.getType()));
