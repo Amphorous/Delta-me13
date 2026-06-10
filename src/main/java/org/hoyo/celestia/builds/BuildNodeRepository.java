@@ -46,15 +46,16 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
         CREATE (u)-[:HAS_BUILD]->(b1)
     
         WITH u, b1, $fightPropMap AS fightPropMap, $relicIds AS relicIds
-    
-        CALL apoc.create.node(['FightPropNode'], fightPropMap) YIELD node AS f1
+
+        CREATE (f1:FightPropNode)
+        SET f1 = fightPropMap
         CREATE (b1)-[:FIGHT_PROPS]->(f1)
-    
+
         WITH u, b1, relicIds
         UNWIND relicIds AS rid
         MATCH (u)-[:OWNS_RELIC]->(r:RelicNode {relicId: rid})
         CREATE (b1)-[:EQUIPS_RELIC]->(r)
-    
+
         WITH DISTINCT b1, $weaponId AS weaponId,
                $weaponLevel AS weaponLevel,
                $refineWeapon AS refineWeapon,
@@ -111,15 +112,16 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
         CREATE (u)-[:HAS_BUILD]->(b1)
     
         WITH u, b1, $fightPropMap AS fightPropMap, $relicIds AS relicIds
-    
-        CALL apoc.create.node(['FightPropNode'], fightPropMap) YIELD node AS f1
+
+        CREATE (f1:FightPropNode)
+        SET f1 = fightPropMap
         CREATE (b1)-[:FIGHT_PROPS]->(f1)
-    
+
         WITH u, b1, relicIds
         UNWIND relicIds AS rid
         MATCH (u)-[:OWNS_RELIC]->(r:RelicNode {relicId: rid})
         CREATE (b1)-[:EQUIPS_RELIC]->(r)
-    
+
         RETURN DISTINCT b1
     """)
     BuildNode removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodes(

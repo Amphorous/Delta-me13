@@ -6,7 +6,7 @@ import org.springframework.data.neo4j.core.schema.*;
 
 @Data
 @RelationshipProperties
-public class ContainsWeapon {
+public class ContainsWeaponRelationship {
 
     @Id
     @GeneratedValue

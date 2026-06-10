@@ -33,6 +33,7 @@ public class CreateRelicService {
             for(SubAffix subAffix : subAffixList){
                 relicId += subAffix.getAffixId() + "-" + subAffix.getCnt() + "-" + subAffix.getStep() + "_";
             }
+            relicId += "^lv"+relic.getLevel();
             return relicId;
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,10 +55,19 @@ public class CreateRelicService {
         return relicIdSet;
     }
 
-    public String createRelicNode(Relic relic, String uid, String relicId){
+    public Double createRelicNode(Relic relic, String uid, String relicId){
 
         RelicNode relicNode = getRelicNode(relic);
         List<SubAffixNode> subAffixNodes = getSubAffixNodes(relic);
+        Double cv = 0.0;
+
+
+        //cv = calcCv(relicNode, subAffixNodes);
+        //TODO write the calcCV function and the getCV function
+
+        String position = relicNode.getType();
+
+        //cv -= relicNodeRepository.getCV(uid, avatarId, position); //this repo function returns the CV of the relic if it exists, 0 otherwise
 
         relicNodeRepository.insertRelic(
                 relicId,
@@ -75,7 +85,7 @@ public class CreateRelicService {
 
 
 
-        return relicNode.getRelicId();
+        return cv;
     }
 
     private static List<SubAffixNode> getSubAffixNodes(Relic relic) {

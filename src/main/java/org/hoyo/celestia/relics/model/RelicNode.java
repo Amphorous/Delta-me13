@@ -23,6 +23,7 @@ public class RelicNode {
     private String setName;
     private String mainType;
     private Double mainValue;
+    private Double cv;
 
     @Relationship(type = "SUBAFFIX", direction = Relationship.Direction.OUTGOING)
     private List<SubAffixNode> subAffixes;

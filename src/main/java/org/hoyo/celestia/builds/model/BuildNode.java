@@ -1,9 +1,14 @@
 package org.hoyo.celestia.builds.model;
 
 import lombok.Data;
+import org.hoyo.celestia.fightprops.model.FightPropNode;
+import org.hoyo.celestia.relics.model.RelicNode;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
+
+import java.util.List;
 
 @Data
 @Node
@@ -17,6 +22,7 @@ public class BuildNode {
     private Boolean isHidden = false;
     private String avatarId;
     private String buildName = "perhaps_feixiao";
+    private Double cv;
     //not including data from honker_characters.json since that information
     //is only needed on the frontend, and it can be accessed there
 
@@ -34,7 +40,16 @@ public class BuildNode {
 
     //relation going to RelicNode named EQUIPS_RELIC
     // no props (can get the relic of a specific position using r.type if r is a relic)
+    @Relationship(type = "EQUIPS_RELIC", direction = Relationship.Direction.OUTGOING)
+    private List<RelicNode> relicNodes;
 
     //relation going to FightPropNode named FIGHT_PROPS
     // no props
+    @Relationship(type = "FIGHT_PROPS", direction = Relationship.Direction.OUTGOING)
+    private FightPropNode fightProps;
+
+    //relation going to WeaponNode named EQUIPS_WEAPON
+    // weapon current base HP, DEF, ATK and level and refinement as props
+    @Relationship(type = "EQUIPS_WEAPON", direction = Relationship.Direction.OUTGOING)
+    private EquipsWeaponRelationship equipsWeapon;
 }
