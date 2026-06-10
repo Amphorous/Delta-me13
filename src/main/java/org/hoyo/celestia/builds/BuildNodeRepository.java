@@ -1,10 +1,12 @@
 package org.hoyo.celestia.builds;
 
 import org.hoyo.celestia.builds.model.BuildNode;
+import org.hoyo.celestia.fightprops.model.FightPropNode;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,8 +45,6 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             buildName: $buildName,
             isHidden: $isHidden,
             cv: $cv
-            
-            
         })
         CREATE (u)-[:HAS_BUILD]->(b1)
     
@@ -235,14 +235,179 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
     void hideBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName, @Param("isStatic") Boolean isStatic, @Param("hide") Boolean hide);
 
     @Query("""
-    MATCH (:UIDNode {uid: $uid})
-          -[:HAS_BUILD]->
-          (b:BuildNode {
-                avatarId: $avatarId,
-                isStatic: true
-          })
-    RETURN coalesce(b.cv, 0.0)
-""")
+        MATCH (:UIDNode {uid: $uid})
+              -[:HAS_BUILD]->
+              (b:BuildNode {
+                    avatarId: $avatarId,
+                    isStatic: true
+              })
+        RETURN coalesce(b.cv, 0.0)
+    """)
     Double getStaticBuildCv(String uid, String avatarId);
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})
+        MATCH (u)-[:HAS_BUILD]->(b:BuildNode {isHidden: false})
+
+        WITH b
+        ORDER BY b.cv DESC
+        SKIP $skip
+        LIMIT $limit
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[er:EQUIPS_RELIC]->(r:RelicNode)
+            OPTIONAL MATCH (r)-[sar:SUBAFFIX]->(sa:SubAffixNode)
+            RETURN collect(DISTINCT er) AS ers, collect(DISTINCT r) AS relics,
+                   collect(DISTINCT sar) AS sars, collect(DISTINCT sa) AS subAffixes
+        }
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[fpr:FIGHT_PROPS]->(f:FightPropNode)
+            RETURN fpr, f
+        }
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
+            RETURN ew, w
+        }
+
+        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+    """)
+    List<BuildNode> findBuildsByUidOrderByCvDesc(
+            String uid,
+            long skip,
+            long limit
+    );
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})
+        MATCH (u)-[:HAS_BUILD]->(b:BuildNode {isHidden: false})
+
+        WITH b
+        ORDER BY b.cv ASC, id(b)
+
+        SKIP $skip
+        LIMIT $limit
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[er:EQUIPS_RELIC]->(r:RelicNode)
+            OPTIONAL MATCH (r)-[sar:SUBAFFIX]->(sa:SubAffixNode)
+            RETURN collect(DISTINCT er) AS ers, collect(DISTINCT r) AS relics,
+                   collect(DISTINCT sar) AS sars, collect(DISTINCT sa) AS subAffixes
+        }
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[fpr:FIGHT_PROPS]->(f:FightPropNode)
+            RETURN fpr, f
+        }
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
+            RETURN ew, w
+        }
+
+        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+    """)
+    List<BuildNode> findBuildsByUidOrderByCvAsc(
+            String uid,
+            long skip,
+            long limit
+    );
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})
+        MATCH (u)-[:HAS_BUILD]->(b:BuildNode {avatarId: $avatarId, isHidden: false})
+
+        WITH b
+        ORDER BY b.cv DESC, id(b)
+
+        SKIP $skip
+        LIMIT $limit
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[er:EQUIPS_RELIC]->(r:RelicNode)
+            OPTIONAL MATCH (r)-[sar:SUBAFFIX]->(sa:SubAffixNode)
+            RETURN collect(DISTINCT er) AS ers, collect(DISTINCT r) AS relics,
+                   collect(DISTINCT sar) AS sars, collect(DISTINCT sa) AS subAffixes
+        }
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[fpr:FIGHT_PROPS]->(f:FightPropNode)
+            RETURN fpr, f
+        }
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
+            RETURN ew, w
+        }
+
+        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+    """)
+    List<BuildNode> findBuildsByUidFilterByAvatarIdOrderByCvDesc(
+            String uid,
+            String avatarId,
+            long skip,
+            long limit
+    );
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})
+        MATCH (u)-[:HAS_BUILD]->(b:BuildNode {avatarId: $avatarId, isHidden: false})
+
+        WITH b
+        ORDER BY b.cv ASC, id(b)
+
+        SKIP $skip
+        LIMIT $limit
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[er:EQUIPS_RELIC]->(r:RelicNode)
+            OPTIONAL MATCH (r)-[sar:SUBAFFIX]->(sa:SubAffixNode)
+            RETURN collect(DISTINCT er) AS ers, collect(DISTINCT r) AS relics,
+                   collect(DISTINCT sar) AS sars, collect(DISTINCT sa) AS subAffixes
+        }
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[fpr:FIGHT_PROPS]->(f:FightPropNode)
+            RETURN fpr, f
+        }
+
+        CALL (b) {
+            OPTIONAL MATCH (b)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
+            RETURN ew, w
+        }
+
+        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+    """)
+    List<BuildNode> findBuildsByUidFilterByAvatarIdOrderByCvAsc(
+            String uid,
+            String avatarId,
+            long skip,
+            long limit
+    );
+
+    @Query("""
+            MATCH (b:BuildNode {avatarId: "1506", buildName: "perhaps_feixiao"})
+
+            CALL (b) {
+                OPTIONAL MATCH (b)-[er:EQUIPS_RELIC]->(r:RelicNode)
+                OPTIONAL MATCH (r)-[sar:SUBAFFIX]->(sa:SubAffixNode)
+                RETURN collect(DISTINCT er) AS ers, collect(DISTINCT r) AS relics,
+                       collect(DISTINCT sar) AS sars, collect(DISTINCT sa) AS subAffixes
+            }
+
+            CALL (b) {
+                OPTIONAL MATCH (b)-[fpr:FIGHT_PROPS]->(f:FightPropNode)
+                RETURN fpr, f
+            }
+
+            CALL (b) {
+                OPTIONAL MATCH (b)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
+                RETURN ew, w
+            }
+
+            RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+            """)
+    BuildNode test();
 
 }
