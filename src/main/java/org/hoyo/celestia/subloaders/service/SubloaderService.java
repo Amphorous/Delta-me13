@@ -77,6 +77,10 @@ public class SubloaderService {
 
             BuildCheckResult result = shouldICalulateAgain(character, user.getUid(), characterSkillListString);
             if(result.shouldI()){
+
+                Double cvToAdd = result.cvToAdd();
+                //TODO do a db repo call to get CV from the old buildNode
+                // cvToAdd += cvFromOldBuild
                 Set<String> currentRelicIdSet = result.currentRelicIdSet();
 
                 // create a buildnode (whose isStatic == true) with the existing information
@@ -133,6 +137,7 @@ public class SubloaderService {
                                     refineWeapon, weaponAscension,
                                     baseHP, baseDefense,
                                     baseAtk
+                                    //TODO ,cvToAdd
                             );
                 } else {
                     buildNodeRepository.removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodes
@@ -141,6 +146,7 @@ public class SubloaderService {
                                     true, false,
                                     newStaticBuild.getBuildName(),
                                     fightPropMapObject, currentRelicIdSet
+                                    //TODO ,cvToAdd
                             );
                 }
             }
@@ -150,7 +156,7 @@ public class SubloaderService {
         return true;
     }
 
-    public record BuildCheckResult(Boolean shouldI, Set<String> currentRelicIdSet) {}
+    public record BuildCheckResult(Boolean shouldI, Set<String> currentRelicIdSet, Double cvToAdd) {}
 
     public BuildCheckResult shouldICalulateAgain(AvatarDetail character, String uid, String characterSkillListString){
 
@@ -171,6 +177,7 @@ public class SubloaderService {
          * FIXME potential improvement by doing equality checks using XOR and not using strings
          * */
 
+        Double cvToAdd = 0.0;
         Set<String> staticNodeRelicIdSet = relicNodeRepository.getAllRelicIdsFromStaticNode(uid, character.getAvatarId(), true);
         Set<String> currentRelicIdSet = (createRelicService.getRelicIdSetFromAvatarDetails(character));
         Set<String> currentRelicIdSetToInsert = new HashSet<>(currentRelicIdSet);
@@ -178,15 +185,18 @@ public class SubloaderService {
             //check which relicIds are new among the set, then see if the "new" relicIds exist in DB, insert if they don't
             currentRelicIdSet.removeAll(staticNodeRelicIdSet);
 
+
+
             //old logic
             for(String relicId : currentRelicIdSet){
                 if(!relicNodeRepository.existsRelic(uid, relicId)){
                     //this relic id is something that was made by us
+
                     Integer type = Integer.parseInt(String.valueOf(relicId.charAt(0)));
                     Integer pos = getIndexByType(character.getRelicList(), type);
                     //this is making a relic node at uid->relic-><here> with the substats dangling from it
                     //therefore when you want to link these to a build then you must search for uid->relics->thisrelic
-                    createRelicService.createRelicNode(character.getRelicList().get(pos), uid, relicId);
+                    cvToAdd += createRelicService.createRelicNode(character.getRelicList().get(pos), uid, relicId); //TODO
                 }
             }
 
@@ -205,7 +215,7 @@ public class SubloaderService {
             flag = true;
         }
 
-        return new BuildCheckResult(flag, currentRelicIdSetToInsert);
+        return new BuildCheckResult(flag, currentRelicIdSetToInsert, cvToAdd);
     }
 
     public int getIndexByType(ArrayList<Relic> relics, Integer type) {

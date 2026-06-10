@@ -24,7 +24,7 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
         setId: $setId,
         setName: $setName,
         mainType: $mainType,
-        mainValue: $mainValue
+        mainValue: $mainValue 
     })
     
     WITH r
@@ -44,7 +44,7 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
     RETURN DISTINCT r
     
     """)
-    RelicNode insertRelic(
+    RelicNode insertRelic( //TODO edit to add CV manually
             String relicId,
             String uid,
             String mainAffixId,
