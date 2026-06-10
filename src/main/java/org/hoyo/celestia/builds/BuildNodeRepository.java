@@ -41,7 +41,10 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             isStatic: $isStatic,
             avatarId: $avatarId,
             buildName: $buildName,
-            isHidden: $isHidden
+            isHidden: $isHidden,
+            cv: $cv
+            
+            
         })
         CREATE (u)-[:HAS_BUILD]->(b1)
     
@@ -91,7 +94,9 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("weaponAscension") Integer weaponAscension,
             @Param("baseHP") Double baseHP,
             @Param("baseDefence") Double baseDefence,
-            @Param("baseAtk") Double baseAtk
+            @Param("baseAtk") Double baseAtk,
+            @Param("cv") Double cv
+
     );
 
     @Query("""
@@ -107,7 +112,8 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             isStatic: $isStatic,
             avatarId: $avatarId,
             buildName: $buildName,
-            isHidden: $isHidden
+            isHidden: $isHidden,
+            cv: $cv
         })
         CREATE (u)-[:HAS_BUILD]->(b1)
     
@@ -133,7 +139,8 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("isHidden") Boolean isHidden,
             @Param("buildName") String buildName,
             @Param("fightPropMap") Map<String, Object> fightPropMap,
-            @Param("relicIds") Set<String> relicIds
+            @Param("relicIds") Set<String> relicIds,
+            @Param("cv") Double cv
     );
 
     @Query("""
@@ -226,5 +233,16 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             RETURN b
             """)
     void hideBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName, @Param("isStatic") Boolean isStatic, @Param("hide") Boolean hide);
+
+    @Query("""
+    MATCH (:UIDNode {uid: $uid})
+          -[:HAS_BUILD]->
+          (b:BuildNode {
+                avatarId: $avatarId,
+                isStatic: true
+          })
+    RETURN coalesce(b.cv, 0.0)
+""")
+    Double getStaticBuildCv(String uid, String avatarId);
 
 }
