@@ -24,7 +24,8 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
         setId: $setId,
         setName: $setName,
         mainType: $mainType,
-        mainValue: $mainValue 
+        mainValue: $mainValue,
+        cv: $cv
     })
     
     WITH r
@@ -55,6 +56,7 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
             String setName,
             String mainType,
             Double mainValue,
+            Double cv,
             List<Map<String, Object>> subAffixes
     );
 
@@ -228,4 +230,17 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
             long skip,
             long limit
     );
+
+    @Query("""
+    MATCH (:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode {relicId: $relicId})
+    RETURN coalesce(r.cv, 0.0)
+""")
+    Double getRelicCv(String uid, String relicId);
+
+    @Query("""
+    MATCH (:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+    WHERE r.relicId IN $relicIds
+    RETURN coalesce(sum(r.cv), 0.0)
+""")
+    Double getTotalRelicCv(String uid, Set<String> relicIds);
 }
