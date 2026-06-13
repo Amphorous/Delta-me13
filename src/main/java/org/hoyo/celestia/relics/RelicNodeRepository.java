@@ -150,21 +150,8 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
-        OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
     
-        WITH r,
-             reduce(
-                 cv = 0.0,
-                 x IN collect(sa) |
-                 cv +
-                 CASE
-                     WHEN x.type = 'CriticalChance' THEN toFloat(x.value) * 2
-                     WHEN x.type = 'CriticalDamage' THEN toFloat(x.value)
-                     ELSE 0
-                 END
-             ) AS CV
-    
-        ORDER BY CV ASC, r.relicId
+        ORDER BY r.cv ASC, r.relicId
         SKIP $skip
         LIMIT $limit
     
@@ -180,21 +167,8 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
-        OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
     
-        WITH r,
-             reduce(
-                 cv = 0.0,
-                 x IN collect(sa) |
-                 cv +
-                 CASE
-                     WHEN x.type = 'CriticalChance' THEN toFloat(x.value) * 2
-                     WHEN x.type = 'CriticalDamage' THEN toFloat(x.value)
-                     ELSE 0
-                 END
-             ) AS CV
-    
-        ORDER BY CV DESC, r.relicId
+        ORDER BY r.cv DESC, r.relicId
         SKIP $skip
         LIMIT $limit
     

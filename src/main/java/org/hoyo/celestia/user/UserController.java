@@ -48,6 +48,7 @@ public class UserController {
         return timeoutService.timeLeft(uid);
     }
 
+    //TODO: add set wise and position wise filter options using request params
     @GetMapping("/relics/{uid}/{pageNumber}")
     public ResponseEntity<List<RelicProjectionDTO>> getUserRelics(
             @PathVariable String uid,

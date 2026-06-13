@@ -387,27 +387,14 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
     );
 
     @Query("""
-            MATCH (b:BuildNode {avatarId: "1506", buildName: "perhaps_feixiao"})
-
-            CALL (b) {
-                OPTIONAL MATCH (b)-[er:EQUIPS_RELIC]->(r:RelicNode)
-                OPTIONAL MATCH (r)-[sar:SUBAFFIX]->(sa:SubAffixNode)
-                RETURN collect(DISTINCT er) AS ers, collect(DISTINCT r) AS relics,
-                       collect(DISTINCT sar) AS sars, collect(DISTINCT sa) AS subAffixes
-            }
-
-            CALL (b) {
-                OPTIONAL MATCH (b)-[fpr:FIGHT_PROPS]->(f:FightPropNode)
-                RETURN fpr, f
-            }
-
-            CALL (b) {
-                OPTIONAL MATCH (b)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
-                RETURN ew, w
-            }
-
-            RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
-            """)
-    BuildNode test();
+        MATCH (u:UIDNode {uid: $uid})
+        MATCH (u)-[:HAS_BUILD]->(b:BuildNode)
+    
+        WITH b
+        ORDER BY b.cv ASC, id(b)
+    
+        return b
+    """)
+    List<BuildNode> getAllBuilds(String uid);
 
 }
