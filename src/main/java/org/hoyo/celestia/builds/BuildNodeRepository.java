@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,8 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             avatarId: $avatarId,
             buildName: $buildName,
             isHidden: $isHidden,
-            cv: $cv
+            cv: $cv,
+            creationDate: $creationDate
         })
         CREATE (u)-[:HAS_BUILD]->(b1)
     
@@ -95,8 +97,8 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("baseHP") Double baseHP,
             @Param("baseDefence") Double baseDefence,
             @Param("baseAtk") Double baseAtk,
-            @Param("cv") Double cv
-
+            @Param("cv") Double cv,
+            @Param("creationDate")LocalDateTime creationDate
     );
 
     @Query("""
@@ -113,7 +115,8 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             avatarId: $avatarId,
             buildName: $buildName,
             isHidden: $isHidden,
-            cv: $cv
+            cv: $cv,
+            creationDate: $creationDate
         })
         CREATE (u)-[:HAS_BUILD]->(b1)
     
@@ -140,7 +143,8 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("buildName") String buildName,
             @Param("fightPropMap") Map<String, Object> fightPropMap,
             @Param("relicIds") Set<String> relicIds,
-            @Param("cv") Double cv
+            @Param("cv") Double cv,
+            @Param("creationDate")LocalDateTime creationDate
     );
 
     @Query("""
@@ -166,6 +170,7 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             
             SET buildClone.isStatic = false
             SET buildClone.buildName = $buildName
+            SET buildClone.updateDate = $updateDate
             
             WITH buildClone, f
             MATCH (buildClone)-[r:FIGHT_PROPS]->()
@@ -180,7 +185,12 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             
             RETURN buildClone
             """)
-    void createBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName);
+    void createBuild(
+            @Param("uid") String uid,
+            @Param("avatarId") String avatarId,
+            @Param("buildName") String buildName,
+            @Param("updateDate") LocalDateTime updateDate
+    );
 
     @Query("""
             MATCH (u:UIDNode {uid: $uid})

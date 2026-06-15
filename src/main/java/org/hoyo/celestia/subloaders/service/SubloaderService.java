@@ -11,6 +11,7 @@ import org.hoyo.celestia.user.model.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -115,6 +116,7 @@ public class SubloaderService {
                     Double baseDefense = 0.0;
                     Double baseAtk = 0.0;
                     String weaponId = weapon.getTid();
+                    LocalDateTime creationDate = LocalDateTime.now();
                     for (Props prop : weapon.get_flat().getProps()){
                         if ((prop.getType()).equalsIgnoreCase("BaseHP")){
                             baseHP += prop.getValue();
@@ -135,16 +137,19 @@ public class SubloaderService {
                                     refineWeapon, weaponAscension,
                                     baseHP, baseDefense,
                                     baseAtk,
-                                    buildCv
+                                    buildCv,
+                                    creationDate
                             );
                 } else {
+                    LocalDateTime creationDate = LocalDateTime.now();
                     buildNodeRepository.removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodes
                             (user.getUid(), character.getAvatarId(),
                                     character.getLevel(), characterSkillListString,
                                     true, false,
                                     newStaticBuild.getBuildName(),
                                     fightPropMapObject, currentRelicIdSet,
-                                    buildCv
+                                    buildCv,
+                                    creationDate
                             );
                 }
             }

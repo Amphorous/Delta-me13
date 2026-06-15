@@ -206,15 +206,15 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
     );
 
     @Query("""
-    MATCH (:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode {relicId: $relicId})
-    RETURN coalesce(r.cv, 0.0)
-""")
+        MATCH (:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode {relicId: $relicId})
+        RETURN coalesce(r.cv, 0.0)
+    """)
     Double getRelicCv(String uid, String relicId);
 
     @Query("""
-    MATCH (:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
-    WHERE r.relicId IN $relicIds
-    RETURN coalesce(sum(r.cv), 0.0)
-""")
+        MATCH (:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        WHERE r.relicId IN $relicIds
+        RETURN coalesce(sum(r.cv), 0.0)
+    """)
     Double getTotalRelicCv(String uid, Set<String> relicIds);
 }

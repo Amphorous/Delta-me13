@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,6 +24,8 @@ public class BuildNode {
     private String avatarId;
     private String buildName = "perhaps_feixiao";
     private Double cv;
+    private LocalDateTime creationDate;
+    private LocalDateTime updateDate; // NOTE: updateDate isn't the day when the build was changed, it is just the day when the build was **FIRST** given a name
     //not including data from honker_characters.json since that information
     //is only needed on the frontend, and it can be accessed there
 
