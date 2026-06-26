@@ -10,6 +10,7 @@ import org.hoyo.celestia.user.model.Relic;
 import org.hoyo.celestia.user.model.SubAffix;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -85,8 +86,8 @@ public class CreateRelicService {
                 relicNode.getMainType(),
                 relicNode.getMainValue(),
                 CV,
+                LocalDateTime.now(),
                 convertSubAffixes(subAffixNodes)
-
         );
         return CV;
     }

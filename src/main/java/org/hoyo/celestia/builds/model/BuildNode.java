@@ -55,4 +55,12 @@ public class BuildNode {
     // weapon current base HP, DEF, ATK and level and refinement as props
     @Relationship(type = "EQUIPS_WEAPON", direction = Relationship.Direction.OUTGOING)
     private EquipsWeaponRelationship equipsWeapon;
+
+    //relation going to SkillTree named SKILL_TREE
+    // no props
+    // skill tree contains Map<SkillId, Map<propName, propVal>>.
+    // propName => {IconPath, PointType, SpeedDelta(or other node stats)}
+    // propVal => Object
+    @Relationship(type = "SKILL_TREE", direction = Relationship.Direction.OUTGOING)
+    private SkillTree skillTree;
 }

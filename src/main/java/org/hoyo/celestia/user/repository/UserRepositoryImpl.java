@@ -32,11 +32,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .and("detailInfo.isDisplayAvatar").as("buildsPublic");
 
 
-        Aggregation aggregation = Aggregation.newAggregation(match, projection);
+        Aggregation aggregation = Aggregation.newAggregation(match, projection, Aggregation.limit(1));
         AggregationResults<NoRefreshUserDTO> results = mongoTemplate.aggregate(aggregation, "user", NoRefreshUserDTO.class);
-
-        System.out.println("Aggregation results: " + results.getMappedResults());
-
 
         NoRefreshUserDTO noRefreshUserDTO = results.getUniqueMappedResult();
         if (noRefreshUserDTO != null) {

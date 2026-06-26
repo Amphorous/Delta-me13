@@ -1,7 +1,7 @@
 package org.hoyo.celestia.user;
 
 import lombok.RequiredArgsConstructor;
-import org.hoyo.celestia.relics.DTOs.RelicProjectionDTO;
+import org.hoyo.celestia.relics.DTOs.RelicPageDTO;
 import org.hoyo.celestia.relics.model.RelicNode;
 import org.hoyo.celestia.relics.service.FetchRelicService;
 import org.hoyo.celestia.timeouts.service.TimeoutService;
@@ -11,7 +11,7 @@ import org.hoyo.celestia.user.service.UserDetailsFetchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 //@CrossOrigin
 @RestController
@@ -48,24 +48,17 @@ public class UserController {
         return timeoutService.timeLeft(uid);
     }
 
-    //TODO: add set wise and position wise filter options using request params
     @GetMapping("/relics/{uid}/{pageNumber}")
-    public ResponseEntity<List<RelicProjectionDTO>> getUserRelics(
+    public ResponseEntity<RelicPageDTO> getUserRelics(
             @PathVariable String uid,
             @PathVariable int pageNumber,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String filterBy,
+            @RequestParam(required = false) String filterField,
+            @RequestParam(required = false) String filterValue,
+            @RequestParam(required = false) String typeFilter,
             @RequestParam(defaultValue = "DESC") String order
     ) {
-        if (filterBy != null) {
-            return fetchRelicService.getUserRelicsForDisplayFilteredBy(uid, pageNumber, filterBy);
-        }
-
-        if (sortBy != null) {
-            return fetchRelicService.getUserRelicsForDisplaySortedBy(uid, pageNumber, sortBy, order);
-        }
-
-        return fetchRelicService.getUserRelicsForDisplay(uid, pageNumber);
+        return fetchRelicService.getUserRelicsForDisplay(uid, pageNumber, sortBy, order, filterField, filterValue, typeFilter);
     }
 
     @GetMapping("/bio/{uid}")

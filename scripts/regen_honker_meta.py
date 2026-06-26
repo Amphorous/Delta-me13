@@ -43,14 +43,21 @@ def generate_meta():
         treeJson = json.load(f)
         tree = treeJson
 
+    #skills.json
+    skills = {}
+    skillsPath = os.path.join("scripts", "assetsNew", "skills.json")
+    with open(skillsPath, "r") as f:
+        skillsJson = json.load(f)
+        skills = skillsJson
+
     data = {
         "avatar": avatar,
         "equipment": equipment,
         "equipmentSkill": equipmentSkill,
         "relic": relic,
-        "tree": tree
+        "tree": tree,
+        "skills": skills
     }
-
 
     output_path = os.path.join("src", "main", "resources", "assets", "honker_meta.json")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)

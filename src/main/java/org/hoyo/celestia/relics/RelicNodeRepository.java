@@ -25,13 +25,14 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
         setName: $setName,
         mainType: $mainType,
         mainValue: $mainValue,
-        cv: $cv
+        cv: $cv,
+        creationDate: $creationDate
     })
-    
+
     WITH r
     MATCH (u:UIDNode {uid: $uid})
     CREATE (u)-[:OWNS_RELIC]->(r)
-    
+
     WITH r, $subAffixes AS subAffixes
     UNWIND subAffixes AS sa
     CREATE (s:SubAffixNode {
@@ -41,11 +42,11 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
         step: sa.step
     })
     CREATE (r)-[:SUBAFFIX]->(s)
-    
+
     RETURN DISTINCT r
-    
+
     """)
-    RelicNode insertRelic( //TODO edit to add CV manually
+    RelicNode insertRelic(
             String relicId,
             String uid,
             String mainAffixId,
@@ -57,6 +58,7 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
             String mainType,
             Double mainValue,
             Double cv,
+            java.time.LocalDateTime creationDate,
             List<Map<String, Object>> subAffixes
     );
 
@@ -88,11 +90,15 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
     """)
     List<BuildProjection> findBuildsForRelic(String relicId);
 
+    // ── sort-only queries (with optional typeFilter) ──────────────────────────
+
     @Query("""
         MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        WHERE ($typeFilter IS NULL OR r.type = $typeFilter)
         OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
-    
+
         WITH r,
+             CASE WHEN r.mainType = $sortBy THEN toFloat(r.mainValue) ELSE 0.0 END +
              reduce(
                  statValue = 0.0,
                  x IN collect(sa) |
@@ -102,27 +108,30 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
                      ELSE 0
                  END
              ) AS sortValue
-    
-        ORDER BY sortValue ASC, r.relicId
+
+        ORDER BY sortValue ASC, r.cv DESC, r.relicId
         SKIP $skip
         LIMIT $limit
-    
+
         OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
-    
+
         RETURN r, collect(rel), collect(sa)
     """)
     List<RelicNode> findRelicsPagedSortedByStatAsc(
             String uid,
             String sortBy,
+            String typeFilter,
             long skip,
             long limit
     );
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        WHERE ($typeFilter IS NULL OR r.type = $typeFilter)
         OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
-    
+
         WITH r,
+             CASE WHEN r.mainType = $sortBy THEN toFloat(r.mainValue) ELSE 0.0 END +
              reduce(
                  statValue = 0.0,
                  x IN collect(sa) |
@@ -132,75 +141,189 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
                      ELSE 0
                  END
              ) AS sortValue
-    
-        ORDER BY sortValue DESC, r.relicId
+
+        ORDER BY sortValue DESC, r.cv DESC, r.relicId
         SKIP $skip
         LIMIT $limit
-    
+
         OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
-    
+
         RETURN r, collect(rel), collect(sa)
     """)
     List<RelicNode> findRelicsPagedSortedByStatDesc(
             String uid,
             String sortBy,
+            String typeFilter,
             long skip,
             long limit
     );
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
-    
+        WHERE ($typeFilter IS NULL OR r.type = $typeFilter)
+
         ORDER BY r.cv ASC, r.relicId
         SKIP $skip
         LIMIT $limit
-    
+
         OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
-    
+
         RETURN r, collect(rel), collect(sa)
     """)
     List<RelicNode> findRelicsPagedSortedByCVAsc(
             String uid,
+            String typeFilter,
             long skip,
             long limit
     );
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
-    
+        WHERE ($typeFilter IS NULL OR r.type = $typeFilter)
+
         ORDER BY r.cv DESC, r.relicId
         SKIP $skip
         LIMIT $limit
-    
+
         OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
-    
+
         RETURN r, collect(rel), collect(sa)
     """)
     List<RelicNode> findRelicsPagedSortedByCVDesc(
             String uid,
+            String typeFilter,
+            long skip,
+            long limit
+    );
+
+    // ── filter + sort queries (with optional typeFilter) ──────────────────────
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        WHERE (($filterField = 'setName' AND r.setName = $filterValue)
+           OR ($filterField = 'tid' AND r.tid = $filterValue)
+           OR ($filterField = 'type' AND r.type = $filterValue)
+           OR ($filterField = 'setId' AND r.setId = $filterValue))
+          AND ($typeFilter IS NULL OR r.type = $typeFilter)
+
+        OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
+
+        WITH r,
+             CASE WHEN r.mainType = $sortBy THEN toFloat(r.mainValue) ELSE 0.0 END +
+             reduce(
+                 statValue = 0.0,
+                 x IN collect(sa) |
+                 statValue +
+                 CASE
+                     WHEN x.type = $sortBy THEN toFloat(x.value)
+                     ELSE 0
+                 END
+             ) AS sortValue
+
+        ORDER BY sortValue ASC, r.cv DESC, r.relicId
+        SKIP $skip
+        LIMIT $limit
+
+        OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
+
+        RETURN r, collect(rel), collect(sa)
+    """)
+    List<RelicNode> findRelicsPagedFilteredSortedByStatAsc(
+            String uid,
+            String filterField,
+            String filterValue,
+            String sortBy,
+            String typeFilter,
             long skip,
             long limit
     );
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
-        MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
-    
-        WHERE sa.type = $filterBy
-    
-        WITH DISTINCT r
-    
-        ORDER BY r.relicId
+        WHERE (($filterField = 'setName' AND r.setName = $filterValue)
+           OR ($filterField = 'tid' AND r.tid = $filterValue)
+           OR ($filterField = 'type' AND r.type = $filterValue)
+           OR ($filterField = 'setId' AND r.setId = $filterValue))
+          AND ($typeFilter IS NULL OR r.type = $typeFilter)
+
+        OPTIONAL MATCH (r)-[:SUBAFFIX]->(sa:SubAffixNode)
+
+        WITH r,
+             CASE WHEN r.mainType = $sortBy THEN toFloat(r.mainValue) ELSE 0.0 END +
+             reduce(
+                 statValue = 0.0,
+                 x IN collect(sa) |
+                 statValue +
+                 CASE
+                     WHEN x.type = $sortBy THEN toFloat(x.value)
+                     ELSE 0
+                 END
+             ) AS sortValue
+
+        ORDER BY sortValue DESC, r.cv DESC, r.relicId
         SKIP $skip
         LIMIT $limit
-    
+
         OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
-    
+
         RETURN r, collect(rel), collect(sa)
     """)
-    List<RelicNode> findRelicsPagedFiltered(
+    List<RelicNode> findRelicsPagedFilteredSortedByStatDesc(
             String uid,
-            String filterBy,
+            String filterField,
+            String filterValue,
+            String sortBy,
+            String typeFilter,
+            long skip,
+            long limit
+    );
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        WHERE (($filterField = 'setName' AND r.setName = $filterValue)
+           OR ($filterField = 'tid' AND r.tid = $filterValue)
+           OR ($filterField = 'type' AND r.type = $filterValue)
+           OR ($filterField = 'setId' AND r.setId = $filterValue))
+          AND ($typeFilter IS NULL OR r.type = $typeFilter)
+
+        ORDER BY r.cv ASC, r.relicId
+        SKIP $skip
+        LIMIT $limit
+
+        OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
+
+        RETURN r, collect(rel), collect(sa)
+    """)
+    List<RelicNode> findRelicsPagedFilteredSortedByCVAsc(
+            String uid,
+            String filterField,
+            String filterValue,
+            String typeFilter,
+            long skip,
+            long limit
+    );
+
+    @Query("""
+        MATCH (u:UIDNode {uid: $uid})-[:OWNS_RELIC]->(r:RelicNode)
+        WHERE (($filterField = 'setName' AND r.setName = $filterValue)
+           OR ($filterField = 'tid' AND r.tid = $filterValue)
+           OR ($filterField = 'type' AND r.type = $filterValue)
+           OR ($filterField = 'setId' AND r.setId = $filterValue))
+          AND ($typeFilter IS NULL OR r.type = $typeFilter)
+
+        ORDER BY r.cv DESC, r.relicId
+        SKIP $skip
+        LIMIT $limit
+
+        OPTIONAL MATCH (r)-[rel:SUBAFFIX]->(sa:SubAffixNode)
+
+        RETURN r, collect(rel), collect(sa)
+    """)
+    List<RelicNode> findRelicsPagedFilteredSortedByCVDesc(
+            String uid,
+            String filterField,
+            String filterValue,
+            String typeFilter,
             long skip,
             long limit
     );
