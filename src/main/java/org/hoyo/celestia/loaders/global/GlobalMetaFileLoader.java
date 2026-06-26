@@ -1,6 +1,5 @@
 package org.hoyo.celestia.loaders.global;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -8,10 +7,11 @@ import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.hoyo.celestia.loaders.model.metaModel.HonkerMetaObject;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Data
 @Component
@@ -26,16 +26,12 @@ public class GlobalMetaFileLoader {
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .build();
 
-        String honkerMetaPath = "src/main/resources/assets/honker_meta.json";
-        JsonNode honkerMetaRootNode = null;
-        try {
-            honkerMetaRootNode = mapper.readTree(new File(honkerMetaPath));
+        try (InputStream is = new ClassPathResource("assets/honker_meta.json").getInputStream()) {
+            metaFile = mapper.readValue(is, HonkerMetaObject.class);
+            log.info("HonkerMetaFile loaded successfully.");
         } catch (IOException exception) {
-            exception.printStackTrace();
+            log.error("Failed to load HonkerMetaFile", exception);
         }
-
-        metaFile = mapper.convertValue(honkerMetaRootNode, HonkerMetaObject.class);
-        log.info("HonkerMetaFile loaded successfully.");
     }
 
     public void reload(HonkerMetaObject newMetaFile) {
