@@ -1,22 +1,24 @@
 package org.hoyo.celestia.loaders;
 
-import org.hoyo.celestia.loaders.global.GlobalMetaFileLoader;
-import org.springframework.web.bind.annotation.GetMapping;
+import lombok.RequiredArgsConstructor;
+import org.hoyo.celestia.loaders.global.AssetRefreshScheduler;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/meta")
+@RequestMapping("/admin/meta")
+@RequiredArgsConstructor
 public class GlobalMetaFileController {
 
-    private final GlobalMetaFileLoader globalMetaFileLoader;
+    private final AssetRefreshScheduler assetRefreshScheduler;
 
-    public GlobalMetaFileController(GlobalMetaFileLoader globalMetaFileLoader) {
-        this.globalMetaFileLoader = globalMetaFileLoader;
-    }
-
-    @GetMapping("test")
-    public void test() {
-        System.out.println(globalMetaFileLoader.getMetaFile().getEquipmentSkill().get("24005").get("1").get("props").get("SpeedAddedRatio"));
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> triggerRefresh() {
+        assetRefreshScheduler.refresh();
+        return ResponseEntity.ok(Map.of("refreshed", true));
     }
 }

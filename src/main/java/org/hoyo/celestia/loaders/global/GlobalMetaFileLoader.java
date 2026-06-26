@@ -18,26 +18,28 @@ import java.io.IOException;
 @Slf4j
 public class GlobalMetaFileLoader {
 
-    private HonkerMetaObject metaFile;
+    private volatile HonkerMetaObject metaFile;
 
     @PostConstruct
     public void init() {
-
-        //previously, this file read the honker_meta.json directly to make this file,
-
         ObjectMapper mapper = JsonMapper.builder()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .build();
 
         String honkerMetaPath = "src/main/resources/assets/honker_meta.json";
         JsonNode honkerMetaRootNode = null;
-        try{
+        try {
             honkerMetaRootNode = mapper.readTree(new File(honkerMetaPath));
-        } catch (IOException exception){
+        } catch (IOException exception) {
             exception.printStackTrace();
         }
 
         metaFile = mapper.convertValue(honkerMetaRootNode, HonkerMetaObject.class);
         log.info("HonkerMetaFile loaded successfully.");
+    }
+
+    public void reload(HonkerMetaObject newMetaFile) {
+        this.metaFile = newMetaFile;
+        log.info("HonkerMetaFile hot-reloaded.");
     }
 }
