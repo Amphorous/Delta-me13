@@ -69,10 +69,6 @@ main/java/org/hoyo/celestia/.DS_Store
 .gradle/
 .idea/
 build/
-gradle/
-
-gradlew.bat
-gradlew
 
 
 RemuriaForHSR/
