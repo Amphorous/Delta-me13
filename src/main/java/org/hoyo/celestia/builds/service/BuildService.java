@@ -8,6 +8,7 @@ import org.hoyo.celestia.builds.model.BuildNode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -42,8 +43,9 @@ public class BuildService {
             buildName = "feixiao_perchance";
         }
 
+        LocalDateTime updateDate = LocalDateTime.now();
         if(!buildNodeRepository.hasBuildName(uid, avatarId, buildName)){
-            buildNodeRepository.createBuild(uid, avatarId, buildName); //FIXME this might fail and we won't have any way to know that it did
+            buildNodeRepository.createBuild(uid, avatarId, buildName, updateDate); //FIXME this might fail and we won't have any way to know that it did
             buildEditResultDTO.setStatus(true);
             buildEditResultDTO.setMessage("New Build has been created");
             return ResponseEntity.ok(buildEditResultDTO);

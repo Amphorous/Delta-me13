@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -24,6 +25,7 @@ public class RelicNode {
     private String mainType;
     private Double mainValue;
     private Double cv;
+    private LocalDateTime creationDate;
 
     @Relationship(type = "SUBAFFIX", direction = Relationship.Direction.OUTGOING)
     private List<SubAffixNode> subAffixes;

@@ -37,4 +37,8 @@ public class HonkerMetaObject {
                 > equipmentSkill;
 
         private RelicMetaProperty relic; //this is only set skill
+
+        private Map<String,
+                    Map<String, Object>
+                > skills;
 }

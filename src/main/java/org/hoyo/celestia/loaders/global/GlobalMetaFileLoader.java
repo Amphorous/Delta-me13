@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.hoyo.celestia.loaders.model.metaModel.HonkerMetaObject;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.io.IOException;
 
 @Data
 @Component
+@Slf4j
 public class GlobalMetaFileLoader {
 
     private HonkerMetaObject metaFile;
@@ -36,6 +38,6 @@ public class GlobalMetaFileLoader {
         }
 
         metaFile = mapper.convertValue(honkerMetaRootNode, HonkerMetaObject.class);
-        System.out.println("Loaded Honker Meta");
+        log.info("HonkerMetaFile loaded successfully.");
     }
 }

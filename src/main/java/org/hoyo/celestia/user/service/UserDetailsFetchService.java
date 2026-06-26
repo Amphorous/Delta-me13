@@ -1,26 +1,18 @@
 package org.hoyo.celestia.user.service;
 
-import org.hoyo.celestia.subloaders.service.SubloaderService;
 import org.hoyo.celestia.user.DTOs.NoRefreshUserDTO;
-import org.hoyo.celestia.user.model.User;
 import org.hoyo.celestia.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 @Service
 public class UserDetailsFetchService {
 
     private final UserRepository userRepository;
-    private final CreateUserService createUserService;
-    private final SubloaderService subloaderService;
 
-    public UserDetailsFetchService(UserRepository userRepository, CreateUserService createUserService, SubloaderService subloaderService) {
+    public UserDetailsFetchService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.createUserService = createUserService;
-        this.subloaderService = subloaderService;
     }
 
     //this refreshes if the user isnt in the DB, also region check function isnt here yet
@@ -45,19 +37,8 @@ public class UserDetailsFetchService {
     }
 
     public ResponseEntity<NoRefreshUserDTO> getUserCardDetailsNoRefresh(String uid){
-
-        //add uid validation
-
         if(!userRepository.existsByUid(uid)){
-            User user = createUserService.getUser(uid);
-            if(user == null || !(user.getUid().equals(uid))){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            userRepository.save(user);
-            subloaderService.userSubloader(user); // ::::::::::: NOT ENTIRELY INTEGRATION TESTED, MIGHT BREAK SOMETHING
-            NoRefreshUserDTO noRefreshUserDTO = new NoRefreshUserDTO(user);
-            noRefreshUserDTO.setRegion(getRegionFromUid(uid));
-            return ResponseEntity.ok(noRefreshUserDTO);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         NoRefreshUserDTO noRefreshUserDTO = userRepository.findUserCardByUid(uid);

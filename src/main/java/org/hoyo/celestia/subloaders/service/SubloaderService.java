@@ -2,6 +2,8 @@ package org.hoyo.celestia.subloaders.service;
 
 import org.hoyo.celestia.builds.BuildNodeRepository;
 import org.hoyo.celestia.builds.model.BuildNode;
+import org.hoyo.celestia.builds.model.SkillTree;
+import org.hoyo.celestia.builds.service.SkillTreeService;
 import org.hoyo.celestia.fightprops.model.FightPropNode;
 import org.hoyo.celestia.fightprops.service.FightPropService;
 import org.hoyo.celestia.uids.UIDNodeRepository;
@@ -11,6 +13,7 @@ import org.hoyo.celestia.user.model.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,13 +25,15 @@ public class SubloaderService {
     private final RelicNodeRepository relicNodeRepository;
     private final CreateRelicService createRelicService;
     private final FightPropService fightPropService;
+    private final SkillTreeService skillTreeService;
 
-    public SubloaderService(UIDNodeRepository uidNodeRepository, BuildNodeRepository buildNodeRepository, RelicNodeRepository relicNodeRepository, CreateRelicService createRelicService, FightPropService fightPropService) {
+    public SubloaderService(UIDNodeRepository uidNodeRepository, BuildNodeRepository buildNodeRepository, RelicNodeRepository relicNodeRepository, CreateRelicService createRelicService, FightPropService fightPropService, SkillTreeService skillTreeService) {
         this.uidNodeRepository = uidNodeRepository;
         this.buildNodeRepository = buildNodeRepository;
         this.relicNodeRepository = relicNodeRepository;
         this.createRelicService = createRelicService;
         this.fightPropService = fightPropService;
+        this.skillTreeService = skillTreeService;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -65,9 +70,6 @@ public class SubloaderService {
             //make a build object for each character
             //-->
 
-            // FIXME potential upgrade by changing the skillliststring to only contain 1220.2.xxx class of stats concatenated
-            // FIXME this does the exact same thing as what we already do, but with less redundancy
-            // FIXME (make sure this is actually correct by cross checking the meta file before implementing)
 
             ArrayList<Skill> skillListTree = character.getSkillTreeList();
             String characterSkillListString = skillListTree.stream()
@@ -105,6 +107,15 @@ public class SubloaderService {
                                 e -> (Object) e.getValue()
                         ));
 
+                SkillTree skillTree = skillTreeService.getSkillTree(character.getAvatarId(), skillListTree);
+                Map<String, Object> skillTreeMapObject = new HashMap<>();
+                for (Map.Entry<String, Map<String, String>> skill : skillTree.getSkills().entrySet()) {
+                    String skillId = skill.getKey();
+                    for (Map.Entry<String, String> prop : skill.getValue().entrySet()) {
+                        skillTreeMapObject.put("skills." + skillId + "." + prop.getKey(), prop.getValue());
+                    }
+                }
+
                 Equipment weapon = character.getEquipment();
 
                 if (weapon != null) {
@@ -115,6 +126,7 @@ public class SubloaderService {
                     Double baseDefense = 0.0;
                     Double baseAtk = 0.0;
                     String weaponId = weapon.getTid();
+                    LocalDateTime creationDate = LocalDateTime.now();
                     for (Props prop : weapon.get_flat().getProps()){
                         if ((prop.getType()).equalsIgnoreCase("BaseHP")){
                             baseHP += prop.getValue();
@@ -130,21 +142,26 @@ public class SubloaderService {
                                     character.getLevel(), characterSkillListString,
                                     true, false,
                                     newStaticBuild.getBuildName(),
-                                    fightPropMapObject, currentRelicIdSet,
+                                    fightPropMapObject, skillTreeMapObject,
+                                    currentRelicIdSet,
                                     weaponId, weaponLevel,
                                     refineWeapon, weaponAscension,
                                     baseHP, baseDefense,
                                     baseAtk,
-                                    buildCv
+                                    buildCv,
+                                    creationDate
                             );
                 } else {
+                    LocalDateTime creationDate = LocalDateTime.now();
                     buildNodeRepository.removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodes
                             (user.getUid(), character.getAvatarId(),
                                     character.getLevel(), characterSkillListString,
                                     true, false,
                                     newStaticBuild.getBuildName(),
-                                    fightPropMapObject, currentRelicIdSet,
-                                    buildCv
+                                    fightPropMapObject, skillTreeMapObject,
+                                    currentRelicIdSet,
+                                    buildCv,
+                                    creationDate
                             );
                 }
             }

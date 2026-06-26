@@ -15,7 +15,7 @@ public class FetchBuildService {
     private static final int PAGE_LIMIT = 20;
     private final BuildNodeRepository buildNodeRepository;
 
-    public ResponseEntity<List<BuildNode>> getAllBuilds(String uid, Integer pageNumber, String order, String filterByAvatarId) {
+    public ResponseEntity<List<BuildNode>> getBuilds(String uid, Integer pageNumber, String order, String filterByAvatarId) {
         long skip = (long) (pageNumber - 1) * PAGE_LIMIT;
         boolean ascending = "ASC".equalsIgnoreCase(order);
         if(ascending) {
@@ -31,7 +31,8 @@ public class FetchBuildService {
         }
     }
 
-    public ResponseEntity<BuildNode> test(){
-        return ResponseEntity.ok(buildNodeRepository.test());
+    public ResponseEntity<List<BuildNode>> getBuildList(String uid) {
+        return ResponseEntity.ok(buildNodeRepository.getAllBuilds(uid));
     }
+
 }

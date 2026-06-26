@@ -1,11 +1,11 @@
 package org.hoyo.celestia.builds;
 
 import org.hoyo.celestia.builds.model.BuildNode;
-import org.hoyo.celestia.fightprops.model.FightPropNode;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,11 +32,13 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})
-    
+
         OPTIONAL MATCH (u)-[:HAS_BUILD]->(old:BuildNode {avatarId: $avatarId, isStatic: $isStatic})-[:FIGHT_PROPS]->(f:FightPropNode)
+        OPTIONAL MATCH (old)-[:SKILL_TREE]->(oldSt:SkillTree)
         DETACH DELETE f
+        DETACH DELETE oldSt
         DETACH DELETE old
-    
+
         CREATE (b1:BuildNode {
             level: $level,
             skillListString: $skillListString,
@@ -44,15 +46,20 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             avatarId: $avatarId,
             buildName: $buildName,
             isHidden: $isHidden,
-            cv: $cv
+            cv: $cv,
+            creationDate: $creationDate
         })
         CREATE (u)-[:HAS_BUILD]->(b1)
-    
-        WITH u, b1, $fightPropMap AS fightPropMap, $relicIds AS relicIds
+
+        WITH u, b1, $fightPropMap AS fightPropMap, $skillTreeMap AS skillTreeMap, $relicIds AS relicIds
 
         CREATE (f1:FightPropNode)
         SET f1 = fightPropMap
         CREATE (b1)-[:FIGHT_PROPS]->(f1)
+
+        CREATE (st1:SkillTree)
+        SET st1 = skillTreeMap
+        CREATE (b1)-[:SKILL_TREE]->(st1)
 
         WITH u, b1, relicIds
         UNWIND relicIds AS rid
@@ -75,7 +82,7 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
                baseDefence: baseDefence,
                baseAtk: baseAtk
         }]->(w)
-    
+
         RETURN DISTINCT b1
     """)
     BuildNode removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodesAndAlsoLinkTheWeaponNode(
@@ -87,6 +94,7 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("isHidden") Boolean isHidden,
             @Param("buildName") String buildName,
             @Param("fightPropMap") Map<String, Object> fightPropMap,
+            @Param("skillTreeMap") Map<String, Object> skillTreeMap,
             @Param("relicIds") Set<String> relicIds,
             @Param("weaponId") String weaponId,
             @Param("weaponLevel") Integer weaponLevel,
@@ -95,17 +103,19 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("baseHP") Double baseHP,
             @Param("baseDefence") Double baseDefence,
             @Param("baseAtk") Double baseAtk,
-            @Param("cv") Double cv
-
+            @Param("cv") Double cv,
+            @Param("creationDate") LocalDateTime creationDate
     );
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})
-    
+
         OPTIONAL MATCH (u)-[:HAS_BUILD]->(old:BuildNode {avatarId: $avatarId, isStatic: $isStatic})-[:FIGHT_PROPS]->(f:FightPropNode)
+        OPTIONAL MATCH (old)-[:SKILL_TREE]->(oldSt:SkillTree)
         DETACH DELETE f
+        DETACH DELETE oldSt
         DETACH DELETE old
-    
+
         CREATE (b1:BuildNode {
             level: $level,
             skillListString: $skillListString,
@@ -113,15 +123,20 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             avatarId: $avatarId,
             buildName: $buildName,
             isHidden: $isHidden,
-            cv: $cv
+            cv: $cv,
+            creationDate: $creationDate
         })
         CREATE (u)-[:HAS_BUILD]->(b1)
-    
-        WITH u, b1, $fightPropMap AS fightPropMap, $relicIds AS relicIds
+
+        WITH u, b1, $fightPropMap AS fightPropMap, $skillTreeMap AS skillTreeMap, $relicIds AS relicIds
 
         CREATE (f1:FightPropNode)
         SET f1 = fightPropMap
         CREATE (b1)-[:FIGHT_PROPS]->(f1)
+
+        CREATE (st1:SkillTree)
+        SET st1 = skillTreeMap
+        CREATE (b1)-[:SKILL_TREE]->(st1)
 
         WITH u, b1, relicIds
         UNWIND relicIds AS rid
@@ -139,8 +154,10 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("isHidden") Boolean isHidden,
             @Param("buildName") String buildName,
             @Param("fightPropMap") Map<String, Object> fightPropMap,
+            @Param("skillTreeMap") Map<String, Object> skillTreeMap,
             @Param("relicIds") Set<String> relicIds,
-            @Param("cv") Double cv
+            @Param("cv") Double cv,
+            @Param("creationDate") LocalDateTime creationDate
     );
 
     @Query("""
@@ -155,42 +172,62 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
     @Query("""
             MATCH (u:UIDNode {uid: $uid})
-            
+
             MATCH (u)-[:HAS_BUILD]->(b:BuildNode {
                 isStatic: true,
                 avatarId: $avatarId
             })-[:FIGHT_PROPS]->(f:FightPropNode)
-            
+
+            OPTIONAL MATCH (b)-[:SKILL_TREE]->(st:SkillTree)
+
             CALL apoc.refactor.cloneNodes([b], true)
             YIELD output AS buildClone
-            
+
             SET buildClone.isStatic = false
             SET buildClone.buildName = $buildName
-            
-            WITH buildClone, f
-            MATCH (buildClone)-[r:FIGHT_PROPS]->()
-            DELETE r
-            
-            WITH buildClone, f
+            SET buildClone.updateDate = $updateDate
+
+            WITH buildClone, f, st
+            MATCH (buildClone)-[r1:FIGHT_PROPS]->()
+            DELETE r1
+
+            WITH buildClone, f, st
             CALL apoc.refactor.cloneNodes([f])
             YIELD output AS fNew
-            
-            WITH buildClone, fNew
+
             CREATE (buildClone)-[:FIGHT_PROPS]->(fNew)
-            
+
+            WITH buildClone, st
+            OPTIONAL MATCH (buildClone)-[r2:SKILL_TREE]->()
+            DELETE r2
+
+            WITH buildClone, st
+            CALL (buildClone, st) {
+                WITH buildClone, st
+                WHERE st IS NOT NULL
+                CALL apoc.refactor.cloneNodes([st])
+                YIELD output AS stNew
+                CREATE (buildClone)-[:SKILL_TREE]->(stNew)
+            }
+
             RETURN buildClone
             """)
-    void createBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName);
+    void createBuild(
+            @Param("uid") String uid,
+            @Param("avatarId") String avatarId,
+            @Param("buildName") String buildName,
+            @Param("updateDate") LocalDateTime updateDate
+    );
 
     @Query("""
             MATCH (u:UIDNode {uid: $uid})
-            
+
             MATCH (u)-[:HAS_BUILD]->(b:BuildNode {
                 isStatic: false,
                 avatarId: $avatarId,
                 buildName: $buildNameOld
             })
-            
+
             SET b.buildName = $buildNameNew
             RETURN b
             """)
@@ -198,14 +235,16 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
     @Query("""
             MATCH (u:UIDNode {uid: $uid})
-            
+
             MATCH (u)-[:HAS_BUILD]->(b:BuildNode {
                 isStatic: false,
                 avatarId: $avatarId,
                 buildName: $buildName
             })-[:FIGHT_PROPS]->(f:FightPropNode)
-            
-            DETACH DELETE b, f
+
+            OPTIONAL MATCH (b)-[:SKILL_TREE]->(st:SkillTree)
+
+            DETACH DELETE b, f, st
             """)
     void deleteBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName);
 
@@ -221,15 +260,15 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
     @Query("""
             MATCH (u:UIDNode {uid: $uid})
-            
+
             MATCH (u)-[:HAS_BUILD]->(b:BuildNode {
                 isStatic: $isStatic,
                 avatarId: $avatarId,
                 buildName: $buildName
             })
-            
+
             SET b.isHidden = $hide
-            
+
             RETURN b
             """)
     void hideBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildName") String buildName, @Param("isStatic") Boolean isStatic, @Param("hide") Boolean hide);
@@ -271,7 +310,12 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             RETURN ew, w
         }
 
-        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+        CALL (b) {
+            OPTIONAL MATCH (b)-[str:SKILL_TREE]->(st:SkillTree)
+            RETURN str, st
+        }
+
+        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w, str, st
     """)
     List<BuildNode> findBuildsByUidOrderByCvDesc(
             String uid,
@@ -306,7 +350,12 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             RETURN ew, w
         }
 
-        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+        CALL (b) {
+            OPTIONAL MATCH (b)-[str:SKILL_TREE]->(st:SkillTree)
+            RETURN str, st
+        }
+
+        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w, str, st
     """)
     List<BuildNode> findBuildsByUidOrderByCvAsc(
             String uid,
@@ -341,7 +390,12 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             RETURN ew, w
         }
 
-        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+        CALL (b) {
+            OPTIONAL MATCH (b)-[str:SKILL_TREE]->(st:SkillTree)
+            RETURN str, st
+        }
+
+        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w, str, st
     """)
     List<BuildNode> findBuildsByUidFilterByAvatarIdOrderByCvDesc(
             String uid,
@@ -377,7 +431,12 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             RETURN ew, w
         }
 
-        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
+        CALL (b) {
+            OPTIONAL MATCH (b)-[str:SKILL_TREE]->(st:SkillTree)
+            RETURN str, st
+        }
+
+        RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w, str, st
     """)
     List<BuildNode> findBuildsByUidFilterByAvatarIdOrderByCvAsc(
             String uid,
@@ -387,27 +446,14 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
     );
 
     @Query("""
-            MATCH (b:BuildNode {avatarId: "1506", buildName: "perhaps_feixiao"})
+        MATCH (u:UIDNode {uid: $uid})
+        MATCH (u)-[:HAS_BUILD]->(b:BuildNode)
 
-            CALL (b) {
-                OPTIONAL MATCH (b)-[er:EQUIPS_RELIC]->(r:RelicNode)
-                OPTIONAL MATCH (r)-[sar:SUBAFFIX]->(sa:SubAffixNode)
-                RETURN collect(DISTINCT er) AS ers, collect(DISTINCT r) AS relics,
-                       collect(DISTINCT sar) AS sars, collect(DISTINCT sa) AS subAffixes
-            }
+        WITH b
+        ORDER BY b.cv ASC, id(b)
 
-            CALL (b) {
-                OPTIONAL MATCH (b)-[fpr:FIGHT_PROPS]->(f:FightPropNode)
-                RETURN fpr, f
-            }
-
-            CALL (b) {
-                OPTIONAL MATCH (b)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
-                RETURN ew, w
-            }
-
-            RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w
-            """)
-    BuildNode test();
+        return b
+    """)
+    List<BuildNode> getAllBuilds(String uid);
 
 }

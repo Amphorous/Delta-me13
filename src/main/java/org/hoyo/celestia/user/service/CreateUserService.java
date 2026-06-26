@@ -12,6 +12,7 @@ import org.hoyo.celestia.user.validate.ValidateUid;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class CreateUserService {
     private final UserRepository userRepository;
     private final TimeoutService timeoutService;
     private final SubloaderService subloaderService;
+    private final ConcurrentHashMap<String, Object> uidLocks = new ConcurrentHashMap<>();
 
     //check mongo if user by uid exists
     //if no then enka call and create user
@@ -31,40 +33,39 @@ public class CreateUserService {
             return UpdateStatus.BAD_UID;
         }
         if(!timeoutService.canIEnkaCallYet(uid)){
-            //timeout isn't ready
             return UpdateStatus.ENKA_TIMEOUT;
         }
 
-        Optional<User> userInDb = userRepository.findByUid(uid);
-        if(userInDb.isPresent()){
-            User user = userInDb.get();
-            User newUser = getUser(uid);
-            if(newUser == null || newUser.getDetailInfo() == null || newUser.getUid() == null){
-                return UpdateStatus.ENKA_USER_NOT_FOUND;
-            }
-            newUser.setId(user.getId());
-            userRepository.save(newUser);
-            //call subloader here---------
-            Boolean subloaderStatus = subloaderService.userSubloader(newUser);
-            if(!subloaderStatus){
-                return UpdateStatus.PRIVATE_BUILDS;
-            }
-            //----------------------------
-            return UpdateStatus.UPDATED;
-        } else {
-            User newUser = getUser(uid);
-            if(newUser != null){
+        // lock makes it so that concurrent user refreshes don't create dupes in race conditions
+        Object lock = uidLocks.computeIfAbsent(uid, k -> new Object());
+        synchronized (lock) {
+            Optional<User> userInDb = userRepository.findByUid(uid);
+            if(userInDb.isPresent()){
+                User user = userInDb.get();
+                User newUser = getUser(uid);
+                if(newUser == null || newUser.getDetailInfo() == null || newUser.getUid() == null){
+                    return UpdateStatus.ENKA_USER_NOT_FOUND;
+                }
+                newUser.setId(user.getId());
                 userRepository.save(newUser);
-                //call subloader here---------
                 Boolean subloaderStatus = subloaderService.userSubloader(newUser);
                 if(!subloaderStatus){
                     return UpdateStatus.PRIVATE_BUILDS;
                 }
-                //----------------------------
-                return UpdateStatus.CREATED;
+                return UpdateStatus.UPDATED;
+            } else {
+                User newUser = getUser(uid);
+                if(newUser != null){
+                    userRepository.save(newUser);
+                    Boolean subloaderStatus = subloaderService.userSubloader(newUser);
+                    if(!subloaderStatus){
+                        return UpdateStatus.PRIVATE_BUILDS;
+                    }
+                    return UpdateStatus.CREATED;
+                }
             }
+            return UpdateStatus.UNKNOWN_ERROR;
         }
-        return UpdateStatus.UNKNOWN_ERROR;
     }
 
     // adds uid and timeout checks to fetchFromEnka()
@@ -110,6 +111,9 @@ public class CreateUserService {
 //            }
         } catch (Exception e){
             e.printStackTrace();
+            //TODO: make a better exception handling and reporting system
+            // this exception must be detected and subsequent processes involving it must be stopped
+            // frontend needs to know that enka didn't respond, so maybe try again or check if the UID is correct
         }
 
         return null;

@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,6 +24,8 @@ public class BuildNode {
     private String avatarId;
     private String buildName = "perhaps_feixiao";
     private Double cv;
+    private LocalDateTime creationDate;
+    private LocalDateTime updateDate; // NOTE: updateDate isn't the day when the build was changed, it is just the day when the build was **FIRST** given a name
     //not including data from honker_characters.json since that information
     //is only needed on the frontend, and it can be accessed there
 
@@ -52,4 +55,12 @@ public class BuildNode {
     // weapon current base HP, DEF, ATK and level and refinement as props
     @Relationship(type = "EQUIPS_WEAPON", direction = Relationship.Direction.OUTGOING)
     private EquipsWeaponRelationship equipsWeapon;
+
+    //relation going to SkillTree named SKILL_TREE
+    // no props
+    // skill tree contains Map<SkillId, Map<propName, propVal>>.
+    // propName => {IconPath, PointType, SpeedDelta(or other node stats)}
+    // propVal => Object
+    @Relationship(type = "SKILL_TREE", direction = Relationship.Direction.OUTGOING)
+    private SkillTree skillTree;
 }
