@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.annotation.PostConstruct;
 import org.hoyo.celestia.loaders.WeaponNodeRepository;
+import org.hoyo.celestia.loaders.global.AssetSyncService;
 import org.hoyo.celestia.loaders.global.GlobalMetaFileLoader;
 import org.hoyo.celestia.loaders.model.*;
 import org.hoyo.celestia.loaders.model.metaModel.HonkerMetaObject;
@@ -13,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -23,10 +22,12 @@ import java.util.Set;
 public class WeaponLoaderService {
     private final WeaponNodeRepository weaponNodeRepository;
     private final GlobalMetaFileLoader globalMetaFileLoader;
+    private final AssetSyncService assetSyncService;
 
-    public WeaponLoaderService(WeaponNodeRepository weaponNodeRepository, GlobalMetaFileLoader globalMetaFileLoader) {
+    public WeaponLoaderService(WeaponNodeRepository weaponNodeRepository, GlobalMetaFileLoader globalMetaFileLoader, AssetSyncService assetSyncService) {
         this.weaponNodeRepository = weaponNodeRepository;
         this.globalMetaFileLoader = globalMetaFileLoader;
+        this.assetSyncService = assetSyncService;
     }
 
     @PostConstruct
@@ -47,18 +48,14 @@ public class WeaponLoaderService {
     }
 
     public String loadWeaponsFromFile(){
-        String honkerWepsPath = "scripts/assetsNew/weapons.json";
-
         ObjectMapper mapper = JsonMapper.builder()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .build();
 
-        JsonNode honkerWepsRootNode;
-        try{
-            honkerWepsRootNode = mapper.readTree(new File(honkerWepsPath));
-        } catch (IOException exception){
-            exception.printStackTrace();
-            return exception.getMessage();
+        Map<String, JsonNode> assets = assetSyncService.syncAssets();
+        JsonNode honkerWepsRootNode = assets != null ? assets.get("weapons") : null;
+        if (honkerWepsRootNode == null) {
+            return "No weapons data available to load (asset sync returned nothing).";
         }
 
         Set<Map.Entry<String, JsonNode>> entries = honkerWepsRootNode.properties();
