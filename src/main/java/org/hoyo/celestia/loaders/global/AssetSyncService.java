@@ -24,12 +24,16 @@ public class AssetSyncService {
             "weapons", "store/hsr/weapons.json",
             "relics", "store/hsr/relics.json",
             "tree", "store/hsr/tree.json",
-            "skills", "store/hsr/skills.json"
+            "skills", "store/hsr/skills.json",
+            "ranks", "store/hsr/ranks.json"
     );
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
     private final Map<String, String> knownShas = new LinkedHashMap<>();
+    // last successfully downloaded copy of each file — lets a partial change still
+    // yield a FULL assets map, since MetaRegenService rebuilds the whole meta object
+    private final Map<String, JsonNode> cachedAssets = new LinkedHashMap<>();
 
     public Map<String, JsonNode> syncAssets() {
         Map<String, JsonNode> assets = new LinkedHashMap<>();
@@ -48,6 +52,7 @@ public class AssetSyncService {
 
                 if (remoteSha.equals(knownShas.get(name))) {
                     log.info("No change in {}", name);
+                    assets.put(name, cachedAssets.get(name));
                     continue;
                 }
 
@@ -55,11 +60,13 @@ public class AssetSyncService {
                 String content = fetchUrl(downloadUrl);
                 JsonNode parsed = mapper.readTree(content);
                 assets.put(name, parsed);
+                cachedAssets.put(name, parsed);
                 knownShas.put(name, remoteSha);
                 anyChanged = true;
 
             } catch (Exception e) {
                 log.error("Failed to sync asset: {}", name, e);
+                assets.put(name, cachedAssets.get(name));
             }
         }
 
@@ -68,7 +75,7 @@ public class AssetSyncService {
             return null;
         }
 
-        log.info("Asset sync complete. {} files updated.", assets.size());
+        log.info("Asset sync complete.");
         return assets;
     }
 

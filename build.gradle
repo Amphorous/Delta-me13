@@ -137,3 +137,13 @@ tasks.register('generateHonkerMeta', Exec) {
 
 // Ensures the metadata generation runs before Java compilation
 compileJava.dependsOn(generateHonkerMeta)
+
+// Bundle the raw avatar/rank JSONs (downloaded by syncGithubHsr) into the jar
+// under assets/, next to honker_meta.json — read at startup by AvatarInfoRedisLoader.
+tasks.named('processResources') {
+    dependsOn tasks.named('syncGithubHsr')
+    from('scripts/assetsNew') {
+        include 'avatars.json', 'ranks.json'
+        into 'assets'
+    }
+}

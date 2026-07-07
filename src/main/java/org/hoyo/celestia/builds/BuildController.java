@@ -3,6 +3,7 @@ package org.hoyo.celestia.builds;
 import lombok.RequiredArgsConstructor;
 import org.hoyo.celestia.builds.model.BuildEditResultDTO;
 import org.hoyo.celestia.builds.model.BuildNode;
+import org.hoyo.celestia.builds.model.BuildPageDTO;
 import org.hoyo.celestia.builds.service.BindingJsonHandler;
 import org.hoyo.celestia.builds.service.BuildService;
 import org.hoyo.celestia.builds.service.FetchBuildService;
@@ -25,7 +26,7 @@ public class BuildController {
     // adding @RequestHeader("Aquila-User-Key") to an endpoint now protects the route automatically
 
     // protected
-    @GetMapping("/create")
+    @PostMapping("/create")
     public ResponseEntity<BuildEditResultDTO> createBuild(
             @RequestHeader("Aquila-User-Key") String userKey,
             @RequestParam("uid") String uid, @RequestParam("avatarId") String avatarId, @RequestParam("buildName") String buildName
@@ -37,7 +38,7 @@ public class BuildController {
     }
 
     // protected
-    @GetMapping("/rename")
+    @PatchMapping("/rename")
     public ResponseEntity<BuildEditResultDTO> renameBuild(
             @RequestHeader("Aquila-User-Key") String userKey,
             @RequestParam("uid") String uid, @RequestParam("avatarId") String avatarId,
@@ -50,7 +51,7 @@ public class BuildController {
     }
 
     // protected
-    @GetMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<BuildEditResultDTO> deleteBuild(
             @RequestHeader("Aquila-User-Key") String userKey,
             @RequestParam("uid") String uid, @RequestParam("avatarId") String avatarId, @RequestParam("buildName") String buildName
@@ -62,7 +63,7 @@ public class BuildController {
     }
 
     // protected
-    @GetMapping("/hide")
+    @PatchMapping("/hide")
     public ResponseEntity<BuildEditResultDTO> hideBuild(
             @RequestHeader("Aquila-User-Key") String userKey,
             @RequestParam("uid") String uid, @RequestParam("avatarId") String avatarId,
@@ -85,7 +86,7 @@ public class BuildController {
     }
 
     @GetMapping("/get-list/{uid}/{pageNumber}")
-    public ResponseEntity<List<BuildNode>> getBuilds(
+    public ResponseEntity<BuildPageDTO> getBuilds(
             @PathVariable String uid,
             @PathVariable int pageNumber,
             @RequestParam(required = false) String filterByAvatarId,

@@ -1,8 +1,10 @@
 package org.hoyo.celestia.builds.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.hoyo.celestia.fightprops.model.FightPropNode;
 import org.hoyo.celestia.relics.model.RelicNode;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -26,8 +28,12 @@ public class BuildNode {
     private Double cv;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate; // NOTE: updateDate isn't the day when the build was changed, it is just the day when the build was **FIRST** given a name
-    //not including data from honker_characters.json since that information
-    //is only needed on the frontend, and it can be accessed there
+
+    // avatar display data (names/icons/ranks) — not persisted to Neo4j, populated
+    // from Redis at read time by AvatarInfoEnrichmentService
+    @Transient
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private AvatarInfoDTO avatarInfo;
 
     //fightprops is going to be a relation to the build
     /*
