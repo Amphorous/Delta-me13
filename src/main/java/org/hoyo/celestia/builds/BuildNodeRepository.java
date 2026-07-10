@@ -229,9 +229,10 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             })
 
             SET b.buildName = $buildNameNew
+            SET b.updateDate = $updateDate
             RETURN b
             """)
-    void editBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildNameOld") String buildNameOld, @Param("buildNameNew") String buildNameNew);
+    void editBuild(@Param("uid") String uid, @Param("avatarId") String avatarId, @Param("buildNameOld") String buildNameOld, @Param("buildNameNew") String buildNameNew, @Param("updateDate") LocalDateTime updateDate);
 
     @Query("""
             MATCH (u:UIDNode {uid: $uid})

@@ -18,12 +18,16 @@ public class AssetRefreshScheduler {
     private final MetaRegenService metaRegenService;
     private final GlobalMetaFileLoader globalMetaFileLoader;
     private final MaintenanceFilter maintenanceFilter;
+    private final AvatarInfoRedisLoader avatarInfoRedisLoader;
 
     public void refresh() {
         log.info("Asset refresh triggered.");
 
         Map<String, JsonNode> assets = assetSyncService.syncAssets();
         if (assets == null) {
+            // even with no upstream changes, re-write the avatar/rank keys: covers a
+            // failed startup write (Redis down at boot) and a Redis flushed since then
+            avatarInfoRedisLoader.ensureLoaded();
             log.info("No updates, skipping regen.");
             return;
         }
@@ -34,6 +38,7 @@ public class AssetRefreshScheduler {
         try {
             HonkerMetaObject newMeta = metaRegenService.regenerate(assets);
             globalMetaFileLoader.reload(newMeta);
+            avatarInfoRedisLoader.refresh(assets);
             log.info("Meta reload complete.");
         } catch (Exception e) {
             log.error("Failed to regenerate meta, restoring service.", e);
