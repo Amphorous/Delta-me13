@@ -44,4 +44,8 @@ public class AvatarInfoDTO {
     // rank number ("1".."6") -> icon path
     @JsonProperty("Ranks")
     private Map<String, String> ranks;
+
+    // form index ("0", ...) -> skill tree layout
+    @JsonProperty("SkillTree")
+    private Map<String, SkillTreeInfoDTO> skillTree;
 }

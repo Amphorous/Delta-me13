@@ -77,7 +77,7 @@ public class BuildService {
         }
 
         if(buildNodeRepository.hasBuildName(uid, avatarId, buildNameOld)){
-            buildNodeRepository.editBuild(uid, avatarId, buildNameOld, buildNameNew);
+            buildNodeRepository.editBuild(uid, avatarId, buildNameOld, buildNameNew, LocalDateTime.now());
             buildEditResultDTO.setStatus(true);
             buildEditResultDTO.setMessage("Build has been edited");
             return ResponseEntity.ok(buildEditResultDTO);

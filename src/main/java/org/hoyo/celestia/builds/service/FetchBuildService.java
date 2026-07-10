@@ -45,7 +45,9 @@ public class FetchBuildService {
     }
 
     public ResponseEntity<List<BuildNode>> getBuildList(String uid) {
-        return ResponseEntity.ok(buildNodeRepository.getAllBuilds(uid));
+        List<BuildNode> builds = buildNodeRepository.getAllBuilds(uid);
+        avatarInfoEnrichmentService.enrichMinimal(builds);
+        return ResponseEntity.ok(builds);
     }
 
 }

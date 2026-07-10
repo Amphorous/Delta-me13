@@ -27,7 +27,7 @@ public class BuildNode {
     private String buildName = "perhaps_feixiao";
     private Double cv;
     private LocalDateTime creationDate;
-    private LocalDateTime updateDate; // NOTE: updateDate isn't the day when the build was changed, it is just the day when the build was **FIRST** given a name
+    private LocalDateTime updateDate; // the last time a name was submitted for this build — set on create and refreshed on every rename; creationDate never changes
 
     // avatar display data (names/icons/ranks) — not persisted to Neo4j, populated
     // from Redis at read time by AvatarInfoEnrichmentService
