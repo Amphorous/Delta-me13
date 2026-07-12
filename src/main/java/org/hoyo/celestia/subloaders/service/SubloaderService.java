@@ -82,10 +82,12 @@ public class SubloaderService {
 
                 Double buildCv = result.cvToAdd();
                 Set<String> currentRelicIdSet = result.currentRelicIdSet();
+                Integer characterRank = normalizedRank(character);
 
                 // create a buildnode (whose isStatic == true) with the existing information
                 BuildNode newStaticBuild = new BuildNode();
                 newStaticBuild.setLevel(character.getLevel());
+                newStaticBuild.setRank(characterRank);
                 newStaticBuild.setAvatarId(character.getAvatarId());
                 newStaticBuild.setSkillListString(characterSkillListString);
                 newStaticBuild.setIsStatic(true);
@@ -139,7 +141,7 @@ public class SubloaderService {
 
                     buildNodeRepository.removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodesAndAlsoLinkTheWeaponNode
                             (user.getUid(), character.getAvatarId(),
-                                    character.getLevel(), characterSkillListString,
+                                    character.getLevel(), characterRank, characterSkillListString,
                                     true, false,
                                     newStaticBuild.getBuildName(),
                                     fightPropMapObject, skillTreeMapObject,
@@ -155,7 +157,7 @@ public class SubloaderService {
                     LocalDateTime creationDate = LocalDateTime.now();
                     buildNodeRepository.removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodes
                             (user.getUid(), character.getAvatarId(),
-                                    character.getLevel(), characterSkillListString,
+                                    character.getLevel(), characterRank, characterSkillListString,
                                     true, false,
                                     newStaticBuild.getBuildName(),
                                     fightPropMapObject, skillTreeMapObject,
@@ -178,6 +180,15 @@ public class SubloaderService {
         Integer level = character.getLevel();
 
         if (!buildNodeRepository.hasLevelsOnStaticBuild(uid, character.getAvatarId(), characterSkillListString, level)) {
+            flag = true;
+        }
+
+        // eidolon rank isn't part of the level/skill fingerprint above, so a rank
+        // change alone must still rebuild the stored static build. Stored rank is
+        // null when no static build exists (already flagged above) and coalesced to
+        // 0 for builds created before the rank property existed.
+        Integer storedRank = buildNodeRepository.getStaticBuildRank(uid, character.getAvatarId());
+        if (!Objects.equals(storedRank, normalizedRank(character))) {
             flag = true;
         }
 
@@ -228,6 +239,12 @@ public class SubloaderService {
                 currentRelicIdSetToInsert,
                 newBuildCv
         );
+    }
+
+    // AvatarDetail.rank defaults to 0, but stay defensive about a null from any
+    // hand-built AvatarDetail (e.g. tests) — rank must never reach Neo4j as null
+    private Integer normalizedRank(AvatarDetail character) {
+        return character.getRank() == null ? 0 : character.getRank();
     }
 
     public int getIndexByType(ArrayList<Relic> relics, Integer type) {

@@ -24,6 +24,7 @@ public class BuildNode {
     private Boolean isStatic;
     private Boolean isHidden = false;
     private String avatarId;
+    private Integer rank = 0; // eidolon rank 0-6, snapshotted from Enka at subload time; nodes created before this field existed have no property and fall back to 0 here
     private String buildName = "perhaps_feixiao";
     private Double cv;
     private LocalDateTime creationDate;
