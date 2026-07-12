@@ -41,6 +41,7 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
         CREATE (b1:BuildNode {
             level: $level,
+            rank: $rank,
             skillListString: $skillListString,
             isStatic: $isStatic,
             avatarId: $avatarId,
@@ -89,6 +90,7 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("uid") String uid,
             @Param("avatarId") String avatarId,
             @Param("level") Integer level,
+            @Param("rank") Integer rank,
             @Param("skillListString") String skillListString,
             @Param("isStatic") Boolean isStatic,
             @Param("isHidden") Boolean isHidden,
@@ -118,6 +120,7 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
         CREATE (b1:BuildNode {
             level: $level,
+            rank: $rank,
             skillListString: $skillListString,
             isStatic: $isStatic,
             avatarId: $avatarId,
@@ -149,6 +152,7 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
             @Param("uid") String uid,
             @Param("avatarId") String avatarId,
             @Param("level") Integer level,
+            @Param("rank") Integer rank,
             @Param("skillListString") String skillListString,
             @Param("isStatic") Boolean isStatic,
             @Param("isHidden") Boolean isHidden,
@@ -284,6 +288,17 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
         RETURN coalesce(b.cv, 0.0)
     """)
     Double getStaticBuildCv(String uid, String avatarId);
+
+    @Query("""
+        MATCH (:UIDNode {uid: $uid})
+              -[:HAS_BUILD]->
+              (b:BuildNode {
+                    avatarId: $avatarId,
+                    isStatic: true
+              })
+        RETURN coalesce(b.rank, 0)
+    """)
+    Integer getStaticBuildRank(String uid, String avatarId);
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})
