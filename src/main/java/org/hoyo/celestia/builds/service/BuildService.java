@@ -16,6 +16,8 @@ import java.util.List;
 @Transactional
 public class BuildService {
 
+    private static final int MAX_BUILD_NAME_LENGTH = 32;
+
     private final BuildNodeRepository buildNodeRepository;
 
     public ResponseEntity<BuildEditResultDTO> createBuild(String uid, String avatarId, String buildName) {
@@ -37,6 +39,10 @@ public class BuildService {
             return ResponseEntity.badRequest().body(buildEditResultDTO);
         } else if(uid.isEmpty()){
             buildEditResultDTO.setMessage("Uid is null or empty");
+            buildEditResultDTO.setStatus(false);
+            return ResponseEntity.badRequest().body(buildEditResultDTO);
+        } else if(buildName.length() > MAX_BUILD_NAME_LENGTH){
+            buildEditResultDTO.setMessage("Build Name must be " + MAX_BUILD_NAME_LENGTH + " characters or fewer");
             buildEditResultDTO.setStatus(false);
             return ResponseEntity.badRequest().body(buildEditResultDTO);
         } else if(buildName.equals("perhaps_feixiao")) {
@@ -72,6 +78,10 @@ public class BuildService {
             return ResponseEntity.badRequest().body(buildEditResultDTO);
         }  else if(uid.isEmpty()){
             buildEditResultDTO.setMessage("Uid is null or empty");
+            buildEditResultDTO.setStatus(false);
+            return ResponseEntity.badRequest().body(buildEditResultDTO);
+        }  else if(buildNameNew == null || buildNameNew.length() > MAX_BUILD_NAME_LENGTH){
+            buildEditResultDTO.setMessage("Build Name must be " + MAX_BUILD_NAME_LENGTH + " characters or fewer");
             buildEditResultDTO.setStatus(false);
             return ResponseEntity.badRequest().body(buildEditResultDTO);
         }
