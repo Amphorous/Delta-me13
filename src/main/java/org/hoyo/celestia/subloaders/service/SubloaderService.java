@@ -1,11 +1,14 @@
 package org.hoyo.celestia.subloaders.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hoyo.celestia.builds.BuildNodeRepository;
 import org.hoyo.celestia.builds.model.BuildNode;
 import org.hoyo.celestia.builds.model.SkillTree;
 import org.hoyo.celestia.builds.service.SkillTreeService;
 import org.hoyo.celestia.fightprops.model.FightPropNode;
 import org.hoyo.celestia.fightprops.service.FightPropService;
+import org.hoyo.celestia.loaders.global.MissingMetaAssetException;
+import org.hoyo.celestia.loaders.global.OnDemandAssetRefresh;
 import org.hoyo.celestia.uids.UIDNodeRepository;
 import org.hoyo.celestia.relics.RelicNodeRepository;
 import org.hoyo.celestia.relics.service.CreateRelicService;
@@ -17,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class SubloaderService {
 
@@ -26,32 +30,41 @@ public class SubloaderService {
     private final CreateRelicService createRelicService;
     private final FightPropService fightPropService;
     private final SkillTreeService skillTreeService;
+    private final OnDemandAssetRefresh onDemandAssetRefresh;
 
-    public SubloaderService(UIDNodeRepository uidNodeRepository, BuildNodeRepository buildNodeRepository, RelicNodeRepository relicNodeRepository, CreateRelicService createRelicService, FightPropService fightPropService, SkillTreeService skillTreeService) {
+    public SubloaderService(UIDNodeRepository uidNodeRepository, BuildNodeRepository buildNodeRepository, RelicNodeRepository relicNodeRepository, CreateRelicService createRelicService, FightPropService fightPropService, SkillTreeService skillTreeService, OnDemandAssetRefresh onDemandAssetRefresh) {
         this.uidNodeRepository = uidNodeRepository;
         this.buildNodeRepository = buildNodeRepository;
         this.relicNodeRepository = relicNodeRepository;
         this.createRelicService = createRelicService;
         this.fightPropService = fightPropService;
         this.skillTreeService = skillTreeService;
+        this.onDemandAssetRefresh = onDemandAssetRefresh;
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Boolean userSubloader(User user){
+    public SubloaderResult userSubloader(User user){
         if(user.getDetailInfo().getPrivacySettingInfo().getDisplayCollection() == null){
             //weird null
-            return false;
+            return new SubloaderResult(false, List.of());
         }
         if(!user.getDetailInfo().getPrivacySettingInfo().getDisplayCollection()){
             //users builds are private, return false
-            return false;
+            return new SubloaderResult(false, List.of());
         }
 
         //merge uid node into db
         uidNodeRepository.createUIDNodeIfNotExists(user.getUid());
 
+        // Characters whose meta assets don't exist yet (new game version) are
+        // skipped instead of failing the whole upsert — the typed exception is
+        // caught INSIDE this @Transactional method, so the transaction still
+        // commits everything that did succeed (partial success by design).
+        List<String> skippedAvatarIds = new ArrayList<>();
+
         ArrayList<AvatarDetail> avatarDetailList = user.getDetailInfo().getAvatarDetailList();
         for(AvatarDetail character : avatarDetailList){
+            try {
             /*
             * check if build exists for this character, else jump to calc
             *   if build exists, then check level, talent level string, if not same, jump to calc
@@ -168,10 +181,27 @@ public class SubloaderService {
                 }
             }
 
+            } catch (MissingMetaAssetException e) {
+                // Only the typed miss is caught — any real DB/logic failure
+                // still propagates and rolls the transaction back as before.
+                skippedAvatarIds.add(character.getAvatarId());
+                log.warn("Skipping character {} for uid {}: {}", character.getAvatarId(), user.getUid(), e.getMessage());
+            }
         }
+
+        if(!skippedAvatarIds.isEmpty()){
+            log.warn("============================================================");
+            log.warn("PARTIAL UPSERT for uid {} — {} character(s) skipped over missing meta assets: {}", user.getUid(), skippedAvatarIds.size(), skippedAvatarIds);
+            log.warn("These characters exist in the user's live Enka data but not in the loaded meta (usually a new game version) — requesting an on-demand asset refresh.");
+            log.warn("============================================================");
+            onDemandAssetRefresh.requestRefresh("missing meta assets for avatars " + skippedAvatarIds);
+        }
+
         //this marks the end of subloading, having read the user builds
-        return true;
+        return new SubloaderResult(true, skippedAvatarIds);
     }
+
+    public record SubloaderResult(boolean success, List<String> skippedAvatarIds) {}
 
     public record BuildCheckResult(Boolean shouldI, Set<String> currentRelicIdSet, Double cvToAdd) {}
 

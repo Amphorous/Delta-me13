@@ -4,6 +4,7 @@ import org.hoyo.celestia.buffEffects.model.TeamMemberDTO;
 import org.hoyo.celestia.buffEffects.service.StaticEffects;
 import org.hoyo.celestia.fightprops.model.FightPropNode;
 import org.hoyo.celestia.loaders.global.GlobalMetaFileLoader;
+import org.hoyo.celestia.loaders.global.MissingMetaAssetException;
 import org.hoyo.celestia.loaders.model.metaModel.HonkerMetaObject;
 import org.hoyo.celestia.user.model.AvatarDetail;
 import org.hoyo.celestia.user.model.Props;
@@ -48,7 +49,14 @@ public class FightPropService {
         Integer level = character.getLevel();
 
         Map<String, Double> fightPropMap = new HashMap<>();
-        Map<String, Double> currentAscensionStats = localMetaFile.getAvatar().get(avatarId).get(promotion);
+        // Brand-new characters (fresh game version) won't be in the meta file
+        // until the synced assets catch up — surface that as a typed miss the
+        // subloader can skip, instead of an NPE that fails the whole upsert.
+        Map<String, Map<String, Double>> avatarPromotions = localMetaFile.getAvatar().get(avatarId);
+        if (avatarPromotions == null || avatarPromotions.get(promotion) == null) {
+            throw new MissingMetaAssetException("avatar", avatarId);
+        }
+        Map<String, Double> currentAscensionStats = avatarPromotions.get(promotion);
 
 
 //        Double addValue = null;
@@ -157,7 +165,19 @@ public class FightPropService {
                 if(pointId.charAt(pointId.length()-3)=='2'){
                     if(skill.getLevel()==1){
                         //now we need to add the stat value to fightpropmap
-                        Map<String, Double> stat = localMetaFile.getTree().get(pointId).get("1").get("props");
+                        // Same story as the avatar lookup above: a new trace
+                        // point from a fresh game version won't be in the meta
+                        // tree yet. Treat it as a typed miss (skipping the whole
+                        // character) rather than storing a build with silently
+                        // wrong stats.
+                        Map<String, Map<String, Map<String, Double>>> treePoint = localMetaFile.getTree().get(pointId);
+                        Map<String, Double> stat = null;
+                        if (treePoint != null && treePoint.get("1") != null) {
+                            stat = treePoint.get("1").get("props");
+                        }
+                        if (stat == null) {
+                            throw new MissingMetaAssetException("tree", pointId);
+                        }
                         for(Map.Entry<String, Double> entry : stat.entrySet()) {
 
                             StaticEffects.effectRoutingStatAdder(fightPropMap, entry);

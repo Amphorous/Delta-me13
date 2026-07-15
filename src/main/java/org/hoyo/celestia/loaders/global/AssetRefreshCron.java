@@ -17,6 +17,6 @@ public class AssetRefreshCron {
     @Scheduled(cron = "${celestia.data.refresh-cron:0 0 3 */3 * ?}")
     public void checkForUpdate() {
         log.info("Scheduled asset refresh triggered.");
-        assetRefreshScheduler.refresh();
+        assetRefreshScheduler.refresh(0);
     }
 }

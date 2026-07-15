@@ -11,6 +11,7 @@ import org.hoyo.celestia.user.model.User;
 import org.hoyo.celestia.user.validate.ValidateUid;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,12 +29,12 @@ public class CreateUserService {
     //if no then enka call and create user
     //if yes then enka call and refresh data
     // [[ everytime a user refreshes a UID's data, this flow MUST occur, and the flow MUST go through here ]]
-    public UpdateStatus upsertUser(String uid){
+    public UpsertOutcome upsertUser(String uid){
         if(!validateUid.validate(uid)){
-            return UpdateStatus.BAD_UID;
+            return new UpsertOutcome(UpdateStatus.BAD_UID, List.of());
         }
         if(!timeoutService.canIEnkaCallYet(uid)){
-            return UpdateStatus.ENKA_TIMEOUT;
+            return new UpsertOutcome(UpdateStatus.ENKA_TIMEOUT, List.of());
         }
 
         // lock makes it so that concurrent user refreshes don't create dupes in race conditions
@@ -44,29 +45,33 @@ public class CreateUserService {
                 User user = userInDb.get();
                 User newUser = getUser(uid);
                 if(newUser == null || newUser.getDetailInfo() == null || newUser.getUid() == null){
-                    return UpdateStatus.ENKA_USER_NOT_FOUND;
+                    return new UpsertOutcome(UpdateStatus.ENKA_USER_NOT_FOUND, List.of());
                 }
                 newUser.setId(user.getId());
                 userRepository.save(newUser);
-                Boolean subloaderStatus = subloaderService.userSubloader(newUser);
-                if(!subloaderStatus){
-                    return UpdateStatus.PRIVATE_BUILDS;
+                SubloaderService.SubloaderResult subloaderResult = subloaderService.userSubloader(newUser);
+                if(!subloaderResult.success()){
+                    return new UpsertOutcome(UpdateStatus.PRIVATE_BUILDS, List.of());
                 }
-                return UpdateStatus.UPDATED;
+                return new UpsertOutcome(UpdateStatus.UPDATED, subloaderResult.skippedAvatarIds());
             } else {
                 User newUser = getUser(uid);
                 if(newUser != null){
                     userRepository.save(newUser);
-                    Boolean subloaderStatus = subloaderService.userSubloader(newUser);
-                    if(!subloaderStatus){
-                        return UpdateStatus.PRIVATE_BUILDS;
+                    SubloaderService.SubloaderResult subloaderResult = subloaderService.userSubloader(newUser);
+                    if(!subloaderResult.success()){
+                        return new UpsertOutcome(UpdateStatus.PRIVATE_BUILDS, List.of());
                     }
-                    return UpdateStatus.CREATED;
+                    return new UpsertOutcome(UpdateStatus.CREATED, subloaderResult.skippedAvatarIds());
                 }
             }
-            return UpdateStatus.UNKNOWN_ERROR;
+            return new UpsertOutcome(UpdateStatus.UNKNOWN_ERROR, List.of());
         }
     }
+
+    // UpdateStatus alone can't carry which characters were skipped over missing
+    // meta assets (new game version), so upsert callers get this pair instead.
+    public record UpsertOutcome(UpdateStatus status, List<String> skippedAvatarIds) {}
 
     // adds uid and timeout checks to fetchFromEnka()
     // use this when you want to get a full user object anywhere
