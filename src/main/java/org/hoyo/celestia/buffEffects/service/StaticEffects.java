@@ -2,6 +2,7 @@ package org.hoyo.celestia.buffEffects.service;
 
 import org.hoyo.celestia.buffEffects.model.TeamMemberDTO;
 import org.hoyo.celestia.loaders.global.GlobalMetaFileLoader;
+import org.hoyo.celestia.loaders.model.metaModel.RelicMetaProperty;
 import org.hoyo.celestia.loaders.model.metaModel.SetSkillData;
 import org.springframework.stereotype.Service;
 
@@ -48,15 +49,21 @@ public class StaticEffects {
     }
 
     public void relicEffectRouting(Map<String,Double> stats, Integer relicSet, Integer relicCount) {
-        Map<String, SetSkillData> context = globalMetaFileLoader.getMetaFile().getRelic().getSetSkill().get(String.valueOf(relicSet));
+        // A brand-new relic set (fresh game version) may be absent from the
+        // meta entirely, or present with missing piece-count entries — a set
+        // bonus is a minor additive effect, so skip silently rather than fail
+        // the character (same treatment as the context == null case below).
+        RelicMetaProperty relicMeta = globalMetaFileLoader.getMetaFile().getRelic();
+        if(relicMeta == null || relicMeta.getSetSkill() == null) {return;}
+        Map<String, SetSkillData> context = relicMeta.getSetSkill().get(String.valueOf(relicSet));
         if(context == null) {return;}
 
-        if(relicCount == 4) {
+        if(relicCount == 4 && context.get("4") != null && context.get("4").getProps() != null) {
             for(Map.Entry<String,Double> entry : context.get("4").getProps().entrySet()) {
                 effectRoutingStatAdder(stats, entry);
             }
         }
-        if(relicCount >= 2) {
+        if(relicCount >= 2 && context.get("2") != null && context.get("2").getProps() != null) {
             for(Map.Entry<String,Double> entry : context.get("2").getProps().entrySet()) {
                 effectRoutingStatAdder(stats, entry);
             }

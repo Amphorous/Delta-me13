@@ -32,7 +32,7 @@ public class WeaponLoaderService {
 
     @PostConstruct
     public void init(){
-        System.out.println(loadWeaponsFromFile());
+        System.out.println(loadWeaponsFromFile(0));
     }
 
     //read honker_weps.json
@@ -44,15 +44,21 @@ public class WeaponLoaderService {
     // also add lvl 80 calcd stats using honker_meta.json
 
     public ResponseEntity<String> execute() {
-        return ResponseEntity.status(HttpStatus.OK).body(loadWeaponsFromFile());
+        return ResponseEntity.status(HttpStatus.OK).body(loadWeaponsFromFile(1));
     }
 
-    public String loadWeaponsFromFile(){
+    public String loadWeaponsFromFile(int force){
         ObjectMapper mapper = JsonMapper.builder()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .build();
 
-        Map<String, JsonNode> assets = assetSyncService.syncAssets();
+        // Data-only consumer: deliberately does NOT commit the sync's SHAs —
+        // that's reserved for the full refresh pipeline (AssetRefreshScheduler)
+        // after a successful meta regen. This boot-time load advancing the SHAs
+        // as a download side effect was what made later refresh cycles report
+        // "no change" against a meta that had never actually been regenerated.
+        AssetSyncService.SyncResult sync = assetSyncService.syncAssets(force);
+        Map<String, JsonNode> assets = sync.assets();
         JsonNode honkerWepsRootNode = assets != null ? assets.get("weapons") : null;
         if (honkerWepsRootNode == null) {
             return "No weapons data available to load (asset sync returned nothing).";

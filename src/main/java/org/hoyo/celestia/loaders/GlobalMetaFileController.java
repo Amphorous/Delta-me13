@@ -18,7 +18,7 @@ public class GlobalMetaFileController {
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, Object>> triggerRefresh() {
-        assetRefreshScheduler.refresh();
+        assetRefreshScheduler.refresh(1);
         return ResponseEntity.ok(Map.of("refreshed", true));
     }
 }

@@ -33,6 +33,10 @@ import java.util.Map;
  *                            so the read path needs a single MGET per page of builds
  *   avatarRank:{rankId}   -> plain IconPath string (rank number = last 2 digits of rankId)
  *   skillIcon:{skillId}   -> plain IconPath string (skills.json tree-node ids)
+ *   pfpIcons              -> ONE JSON blob { headIconId: iconPath, ... } (pfps.json) —
+ *                            stored whole rather than per-id since its only consumer
+ *                            (GET /user/pfps, backing the frontend's profile-picture
+ *                            lookup) always wants the entire map in a single GET
  *
  * Runs once on startup from the bundled classpath resources, and again with fresh
  * data whenever the asset refresh cycle detects upstream changes.
@@ -45,6 +49,7 @@ public class AvatarInfoRedisLoader {
     public static final String AVATAR_INFO_KEY_PREFIX = "avatarInfo:";
     public static final String AVATAR_RANK_KEY_PREFIX = "avatarRank:";
     public static final String SKILL_ICON_KEY_PREFIX = "skillIcon:";
+    public static final String PFP_ICONS_KEY = "pfpIcons";
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -54,6 +59,7 @@ public class AvatarInfoRedisLoader {
     private volatile JsonNode avatarsJson;
     private volatile JsonNode ranksJson;
     private volatile JsonNode skillsJson;
+    private volatile JsonNode pfpsJson;
     private volatile boolean loaded = false;
 
     @EventListener(ApplicationReadyEvent.class)
@@ -69,6 +75,13 @@ public class AvatarInfoRedisLoader {
                 avatarsJson = objectMapper.readTree(avatars);
                 ranksJson = objectMapper.readTree(ranks);
                 skillsJson = objectMapper.readTree(skills);
+            }
+            // pfps is optional on purpose: a jar built before pfps.json was
+            // bundled must still load the avatar/rank/skill data above.
+            try (InputStream pfps = new ClassPathResource("assets/pfps.json").getInputStream()) {
+                pfpsJson = objectMapper.readTree(pfps);
+            } catch (Exception e) {
+                log.warn("Bundled assets/pfps.json not available; pfp icons will load on the next asset refresh.", e);
             }
             writeToRedis();
         } catch (Exception e) {
@@ -100,12 +113,14 @@ public class AvatarInfoRedisLoader {
         JsonNode newAvatars = assets.get("avatars");
         JsonNode newRanks = assets.get("ranks");
         JsonNode newSkills = assets.get("skills");
-        if (newAvatars == null && newRanks == null && newSkills == null && loaded) {
+        JsonNode newPfps = assets.get("pfps");
+        if (newAvatars == null && newRanks == null && newSkills == null && newPfps == null && loaded) {
             return;
         }
         if (newAvatars != null) avatarsJson = newAvatars;
         if (newRanks != null) ranksJson = newRanks;
         if (newSkills != null) skillsJson = newSkills;
+        if (newPfps != null) pfpsJson = newPfps;
         try {
             writeToRedis();
         } catch (Exception e) {
@@ -143,6 +158,19 @@ public class AvatarInfoRedisLoader {
             avatarBlobs.put(avatarId, blob.toString());
         }
 
+        // pfps.json keys its icon path "Icon" (not "IconPath" like ranks/skills)
+        Map<String, String> pfpIcons = pfpsJson == null
+                ? Map.of()
+                : extractIconPaths(pfpsJson, "Icon");
+        String pfpIconsBlob;
+        try {
+            pfpIconsBlob = pfpIcons.isEmpty() ? null : objectMapper.writeValueAsString(pfpIcons);
+        } catch (Exception e) {
+            log.error("Failed to serialize pfp icon map, skipping its Redis write.", e);
+            pfpIconsBlob = null;
+        }
+        String finalPfpIconsBlob = pfpIconsBlob;
+
         redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             rankIcons.forEach((rankId, icon) -> connection.stringCommands().set(
                     (AVATAR_RANK_KEY_PREFIX + rankId).getBytes(StandardCharsets.UTF_8),
@@ -153,21 +181,48 @@ public class AvatarInfoRedisLoader {
             avatarBlobs.forEach((avatarId, blob) -> connection.stringCommands().set(
                     (AVATAR_INFO_KEY_PREFIX + avatarId).getBytes(StandardCharsets.UTF_8),
                     blob.getBytes(StandardCharsets.UTF_8)));
+            if (finalPfpIconsBlob != null) {
+                connection.stringCommands().set(
+                        PFP_ICONS_KEY.getBytes(StandardCharsets.UTF_8),
+                        finalPfpIconsBlob.getBytes(StandardCharsets.UTF_8));
+            }
             return null;
         });
 
         loaded = true;
-        log.info("Wrote {} avatarInfo blobs, {} avatarRank icons and {} skillIcon paths to Redis.",
-                avatarBlobs.size(), rankIcons.size(), skillIcons.size());
+        log.info("Wrote {} avatarInfo blobs, {} avatarRank icons, {} skillIcon paths and {} pfp icons to Redis.",
+                avatarBlobs.size(), rankIcons.size(), skillIcons.size(), pfpIcons.size());
+    }
+
+    /**
+     * Read side of the pfpIcons blob: headIconId -> iconPath, empty map when
+     * the key is missing (Redis flushed and not yet re-seeded) or unparseable.
+     */
+    public Map<String, String> getPfpIcons() {
+        try {
+            String blob = redisTemplate.opsForValue().get(PFP_ICONS_KEY);
+            if (blob == null) {
+                return Map.of();
+            }
+            return objectMapper.readValue(blob, new com.fasterxml.jackson.core.type.TypeReference<Map<String, String>>() {});
+        } catch (Exception e) {
+            log.error("Failed to read pfp icon map from Redis.", e);
+            return Map.of();
+        }
     }
 
     /** id -> IconPath for any json shaped Map<id, {IconPath: ..., ...}> (ranks.json, skills.json). */
     private Map<String, String> extractIconPaths(JsonNode source) {
+        return extractIconPaths(source, "IconPath");
+    }
+
+    /** Same, for sources whose icon field has a different name (pfps.json uses "Icon"). */
+    private Map<String, String> extractIconPaths(JsonNode source, String iconField) {
         Map<String, String> icons = new LinkedHashMap<>();
         Iterator<String> ids = source.fieldNames();
         while (ids.hasNext()) {
             String id = ids.next();
-            JsonNode icon = source.get(id).get("IconPath");
+            JsonNode icon = source.get(id).get(iconField);
             if (icon != null) {
                 icons.put(id, icon.asText());
             }
