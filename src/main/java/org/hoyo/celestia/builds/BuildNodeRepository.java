@@ -1,6 +1,7 @@
 package org.hoyo.celestia.builds;
 
 import org.hoyo.celestia.builds.model.BuildNode;
+import org.hoyo.celestia.builds.model.WeaponFingerprintProjection;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -75,13 +76,21 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
                $baseDefence AS baseDefence,
                $baseAtk AS baseAtk
         MATCH (w:WeaponNode {weaponId: weaponId})
+        // WeaponNode itself carries no rarity/path — those only live on the
+        // Store("weapons")-[:CONTAINS_WEAPON]->WeaponNode edge (see
+        // WeaponNodeRepository). OPTIONAL so a somehow-missing CONTAINS_WEAPON
+        // edge just yields null rarity/path on the new EQUIPS_WEAPON edge
+        // below rather than failing the whole build upsert.
+        OPTIONAL MATCH (:Store {name: 'weapons'})-[cw:CONTAINS_WEAPON]->(w)
         CREATE (b1)-[:EQUIPS_WEAPON {
                weaponLevel: weaponLevel,
                weaponRefinement: refineWeapon,
                weaponAscension: weaponAscension,
                baseHP: baseHP,
                baseDefence: baseDefence,
-               baseAtk: baseAtk
+               baseAtk: baseAtk,
+               rarity: cw.rarity,
+               path: cw.path
         }]->(w)
 
         RETURN DISTINCT b1
@@ -300,6 +309,21 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
     """)
     Integer getStaticBuildRank(String uid, String avatarId);
 
+    // Read separately from getStaticBuildRank/getStaticBuildCv above because those
+    // two use plain scalar coalesce() returns (always exactly one row/value even
+    // when the static build itself doesn't exist yet), whereas this one needs to
+    // distinguish "no static build at all" (no row -> null projection, handled by
+    // shouldICalulateAgain's other checks already) from "static build exists but
+    // has no weapon equipped" (one row, every field null) — collapsing those two
+    // states into a single coalesced default would make a real weapon un-equip
+    // indistinguishable from "nothing to compare yet".
+    @Query("""
+        MATCH (:UIDNode {uid: $uid})-[:HAS_BUILD]->(b:BuildNode {avatarId: $avatarId, isStatic: true})
+        OPTIONAL MATCH (b)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
+        RETURN w.weaponId AS weaponId, ew.weaponLevel AS weaponLevel, ew.weaponRefinement AS weaponRefinement, ew.weaponAscension AS weaponAscension
+    """)
+    WeaponFingerprintProjection getStaticBuildWeaponFingerprint(@Param("uid") String uid, @Param("avatarId") String avatarId);
+
     @Query("""
         MATCH (u:UIDNode {uid: $uid})
         MATCH (u)-[:HAS_BUILD]->(b:BuildNode {isHidden: false})
@@ -381,7 +405,8 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})
-        MATCH (u)-[:HAS_BUILD]->(b:BuildNode {avatarId: $avatarId, isHidden: false})
+        MATCH (u)-[:HAS_BUILD]->(b:BuildNode {isHidden: false})
+        WHERE b.avatarId IN $avatarIds
 
         WITH b
         ORDER BY b.cv DESC, id(b)
@@ -413,16 +438,17 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
         RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w, str, st
     """)
-    List<BuildNode> findBuildsByUidFilterByAvatarIdOrderByCvDesc(
+    List<BuildNode> findBuildsByUidFilterByAvatarIdsOrderByCvDesc(
             String uid,
-            String avatarId,
+            Set<String> avatarIds,
             long skip,
             long limit
     );
 
     @Query("""
         MATCH (u:UIDNode {uid: $uid})
-        MATCH (u)-[:HAS_BUILD]->(b:BuildNode {avatarId: $avatarId, isHidden: false})
+        MATCH (u)-[:HAS_BUILD]->(b:BuildNode {isHidden: false})
+        WHERE b.avatarId IN $avatarIds
 
         WITH b
         ORDER BY b.cv ASC, id(b)
@@ -454,9 +480,9 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
 
         RETURN b, ers, relics, sars, subAffixes, fpr, f, ew, w, str, st
     """)
-    List<BuildNode> findBuildsByUidFilterByAvatarIdOrderByCvAsc(
+    List<BuildNode> findBuildsByUidFilterByAvatarIdsOrderByCvAsc(
             String uid,
-            String avatarId,
+            Set<String> avatarIds,
             long skip,
             long limit
     );
@@ -471,5 +497,25 @@ public interface BuildNodeRepository extends Neo4jRepository<BuildNode, Long> {
         return b
     """)
     List<BuildNode> getAllBuilds(String uid);
+
+    // One-time backfill for EQUIPS_WEAPON edges created before rarity/path
+    // existed there (see ...AlsoLinkTheWeaponNode above) — refreshing a
+    // character does NOT fix this on its own: shouldICalulateAgain only
+    // rebuilds a static build when the weapon itself actually changed
+    // (id/level/refinement/ascension), so an unchanged equip's edge just
+    // keeps missing rarity/path forever regardless of how many times it's
+    // refreshed. This directly sets both from each weapon's current
+    // CONTAINS_WEAPON edge — plain MATCH (not OPTIONAL): rows with no
+    // CONTAINS_WEAPON match are simply not touched, never nulled out. Not
+    // idempotent-sensitive — safe to call again, a second run just re-sets
+    // the same values (or picks up freshly-corrected ones if CONTAINS_WEAPON
+    // itself changes later).
+    @Query("""
+        MATCH (b:BuildNode)-[ew:EQUIPS_WEAPON]->(w:WeaponNode)
+        MATCH (:Store {name: 'weapons'})-[cw:CONTAINS_WEAPON]->(w)
+        SET ew.rarity = cw.rarity, ew.path = cw.path
+        RETURN count(ew)
+    """)
+    Long backfillWeaponRarityAndPathOnEquipsWeaponEdges();
 
 }

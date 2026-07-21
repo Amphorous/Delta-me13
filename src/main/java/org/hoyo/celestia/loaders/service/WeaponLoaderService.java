@@ -93,6 +93,22 @@ public class WeaponLoaderService {
         // new addition is to check if a weapon exists and add only if it doesnt
 
         if(weaponNodeRepository.checkIfWeaponExists(weaponId)){
+            // Node + its lvl-80 stats already exist, so skip recomputing those —
+            // but still refresh the store link every sync. checkIfWeaponExists is
+            // the ONLY gate in this whole pipeline; nothing else ever revisits an
+            // already-linked weapon. That means any weapon whose CONTAINS_WEAPON
+            // edge was ever created without correct rarity/path (e.g. loaded
+            // before those properties existed here, or via the old save()-then-
+            // link path below, back when it was still live) would otherwise stay
+            // null forever — this is exactly why BuildNodeRepository's
+            // ...AlsoLinkTheWeaponNode query was copying nulls onto new builds'
+            // EQUIPS_WEAPON edges despite CONTAINS_WEAPON supposedly holding real
+            // values. linkWeaponNodeToStore deletes any stale CONTAINS_WEAPON
+            // edge and re-creates it fresh from the current weapons.json data, so
+            // this is a cheap, safe, idempotent refresh — the WeaponNode itself
+            // (and every existing EQUIPS_WEAPON edge already pointing at it) is
+            // untouched.
+            weaponNodeRepository.linkWeaponNodeToStore(weaponId, weapon.getAvatarBaseType(), String.valueOf(weapon.getRarity()));
             return 0;
         }
 

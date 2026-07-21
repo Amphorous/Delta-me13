@@ -15,9 +15,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Loads avatar display data (avatars.json minus Promotion), eidolon rank icon paths
@@ -37,6 +41,14 @@ import java.util.Map;
  *                            stored whole rather than per-id since its only consumer
  *                            (GET /user/pfps, backing the frontend's profile-picture
  *                            lookup) always wants the entire map in a single GET
+ *
+ * Also builds an in-memory (not Redis) reverse index — Path/Element -> the set of
+ * avatarIds with that Path/Element — used by the builds "filter by path/element"
+ * feature. This never needs to be shared cross-instance the way the Redis-backed
+ * data above does (each instance cheaply recomputes the same small, ~200-avatar
+ * index from the same source data), so a plain volatile field is enough; no Redis
+ * round-trip needed to resolve a filter at request time. See getAvatarIdsForPath/
+ * getAvatarIdsForElement.
  *
  * Runs once on startup from the bundled classpath resources, and again with fresh
  * data whenever the asset refresh cycle detects upstream changes.
@@ -61,6 +73,13 @@ public class AvatarInfoRedisLoader {
     private volatile JsonNode skillsJson;
     private volatile JsonNode pfpsJson;
     private volatile boolean loaded = false;
+
+    // Reverse index for the builds path/element filter — rebuilt in the same pass
+    // as avatarBlobs below, never independently. Immutable snapshots (built fully,
+    // then assigned once) so a concurrent reader always sees a complete map, never
+    // a partially-built one — same safe-publication idiom as the JsonNode fields above.
+    private volatile Map<String, Set<String>> avatarIdsByPath = Map.of();
+    private volatile Map<String, Set<String>> avatarIdsByElement = Map.of();
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
@@ -141,10 +160,22 @@ public class AvatarInfoRedisLoader {
         Map<String, String> skillIcons = extractIconPaths(skills);
 
         Map<String, String> avatarBlobs = new LinkedHashMap<>();
+        Map<String, Set<String>> pathIndex = new HashMap<>();
+        Map<String, Set<String>> elementIndex = new HashMap<>();
         Iterator<String> avatarIds = avatars.fieldNames();
         while (avatarIds.hasNext()) {
             String avatarId = avatarIds.next();
             ObjectNode blob = avatars.get(avatarId).deepCopy();
+
+            // AvatarBaseType (Path)/Element are top-level siblings of Promotion,
+            // so reading them before it's removed below is just a matter of
+            // ordering, not a dependency — indexed here since this loop already
+            // visits every avatar once, at zero extra I/O cost.
+            String path = blob.path("AvatarBaseType").asText(null);
+            String element = blob.path("Element").asText(null);
+            if (path != null) pathIndex.computeIfAbsent(path, k -> new HashSet<>()).add(avatarId);
+            if (element != null) elementIndex.computeIfAbsent(element, k -> new HashSet<>()).add(avatarId);
+
             blob.remove("Promotion");
             ObjectNode ranksNode = blob.putObject("Ranks");
             for (JsonNode rankIdNode : blob.path("RankIDList")) {
@@ -157,6 +188,13 @@ public class AvatarInfoRedisLoader {
             resolveSkillTreeIcons(blob, skillIcons);
             avatarBlobs.put(avatarId, blob.toString());
         }
+
+        // Build fully, then swap in one assignment (see the field comments) —
+        // this class's existing safe-publication idiom for volatile fields.
+        this.avatarIdsByPath = pathIndex.entrySet().stream()
+                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, e -> Set.copyOf(e.getValue())));
+        this.avatarIdsByElement = elementIndex.entrySet().stream()
+                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, e -> Set.copyOf(e.getValue())));
 
         // pfps.json keys its icon path "Icon" (not "IconPath" like ranks/skills)
         Map<String, String> pfpIcons = pfpsJson == null
@@ -209,6 +247,21 @@ public class AvatarInfoRedisLoader {
             log.error("Failed to read pfp icon map from Redis.", e);
             return Map.of();
         }
+    }
+
+    /**
+     * avatarIds whose Path (AvatarBaseType) matches, or an empty Set if the path
+     * is unknown/null or the index hasn't loaded yet — never null, never throws,
+     * so callers can feed the result straight into a Cypher `IN` list with no
+     * special-casing (an empty Set there just yields zero matching builds).
+     */
+    public Set<String> getAvatarIdsForPath(String path) {
+        return path == null ? Set.of() : avatarIdsByPath.getOrDefault(path, Set.of());
+    }
+
+    /** Same as {@link #getAvatarIdsForPath}, keyed by Element instead. */
+    public Set<String> getAvatarIdsForElement(String element) {
+        return element == null ? Set.of() : avatarIdsByElement.getOrDefault(element, Set.of());
     }
 
     /** id -> IconPath for any json shaped Map<id, {IconPath: ..., ...}> (ranks.json, skills.json). */

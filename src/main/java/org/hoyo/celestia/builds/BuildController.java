@@ -90,13 +90,17 @@ public class BuildController {
             @PathVariable String uid,
             @PathVariable int pageNumber,
             @RequestParam(required = false) String filterByAvatarId,
+            @RequestParam(required = false) String filterByPath,
+            @RequestParam(required = false) String filterByElement,
             @RequestParam(defaultValue = "DESC") String order
     ) {
         return fetchBuildService.getBuilds(
                 uid,
                 pageNumber,
                 order,
-                filterByAvatarId
+                filterByAvatarId,
+                filterByPath,
+                filterByElement
         );
     }
 
