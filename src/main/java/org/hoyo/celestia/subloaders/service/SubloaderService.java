@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hoyo.celestia.builds.BuildNodeRepository;
 import org.hoyo.celestia.builds.model.BuildNode;
 import org.hoyo.celestia.builds.model.SkillTree;
+import org.hoyo.celestia.builds.model.WeaponFingerprintProjection;
 import org.hoyo.celestia.builds.service.SkillTreeService;
 import org.hoyo.celestia.fightprops.model.FightPropNode;
 import org.hoyo.celestia.fightprops.service.FightPropService;
@@ -219,6 +220,32 @@ public class SubloaderService {
         // 0 for builds created before the rank property existed.
         Integer storedRank = buildNodeRepository.getStaticBuildRank(uid, character.getAvatarId());
         if (!Objects.equals(storedRank, normalizedRank(character))) {
+            flag = true;
+        }
+
+        // Weapon (light cone) swaps, refinements, or level/ascension changes were
+        // previously invisible to this method entirely — level/skill/rank/relics
+        // are the only things it compared, so a player who only changed weapons
+        // (everything else about the character held steady) left `flag` false and
+        // the whole rebuild-and-relink block in userSubloader (the only place
+        // EQUIPS_WEAPON ever gets created) was skipped, leaving the static build
+        // node linked to whatever weapon it last equipped.
+        Equipment currentWeapon = character.getEquipment();
+        WeaponFingerprintProjection storedWeapon = buildNodeRepository.getStaticBuildWeaponFingerprint(uid, character.getAvatarId());
+
+        String currentWeaponId = currentWeapon != null ? currentWeapon.getTid() : null;
+        Integer currentWeaponLevel = currentWeapon != null ? currentWeapon.getLevel() : null;
+        Integer currentWeaponRefinement = currentWeapon != null ? currentWeapon.getRank() : null;
+        Integer currentWeaponAscension = currentWeapon != null ? currentWeapon.getPromotion() : null;
+
+        boolean weaponChanged = storedWeapon == null
+                ? currentWeaponId != null
+                : !Objects.equals(storedWeapon.getWeaponId(), currentWeaponId)
+                        || !Objects.equals(storedWeapon.getWeaponLevel(), currentWeaponLevel)
+                        || !Objects.equals(storedWeapon.getWeaponRefinement(), currentWeaponRefinement)
+                        || !Objects.equals(storedWeapon.getWeaponAscension(), currentWeaponAscension);
+
+        if (weaponChanged) {
             flag = true;
         }
 
