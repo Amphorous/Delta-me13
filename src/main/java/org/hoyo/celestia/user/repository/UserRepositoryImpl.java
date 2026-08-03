@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
+import org.springframework.data.mongodb.core.aggregation.SampleOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
@@ -41,5 +42,24 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         }
 
         return noRefreshUserDTO;
+    }
+
+    @Override
+    public NoRefreshUserDTO findRandomUserCard() {
+
+        SampleOperation sample = Aggregation.sample(1);
+        ProjectionOperation projection = Aggregation.project()
+                .and("uid").as("uid")
+                .and("detailInfo.nickname").as("nickname")
+                .and("detailInfo.signature").as("signature")
+                .and("detailInfo.headIcon").as("headIcon")
+                .and("detailInfo.level").as("level")
+                .and("detailInfo.recordInfo.achievementCount").as("achievementCount")
+                .and("detailInfo.isDisplayAvatar").as("buildsPublic");
+
+        Aggregation aggregation = Aggregation.newAggregation(sample, projection);
+        AggregationResults<NoRefreshUserDTO> results = mongoTemplate.aggregate(aggregation, "user", NoRefreshUserDTO.class);
+
+        return results.getUniqueMappedResult();
     }
 }

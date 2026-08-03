@@ -46,4 +46,13 @@ public class UserDetailsFetchService {
         return ResponseEntity.ok(noRefreshUserDTO);
     }
 
+    public ResponseEntity<NoRefreshUserDTO> getRandomUserCardDetails(){
+        NoRefreshUserDTO noRefreshUserDTO = userRepository.findRandomUserCard();
+        if (noRefreshUserDTO == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        noRefreshUserDTO.setRegion(getRegionFromUid(noRefreshUserDTO.getUid()));
+        return ResponseEntity.ok(noRefreshUserDTO);
+    }
+
 }
