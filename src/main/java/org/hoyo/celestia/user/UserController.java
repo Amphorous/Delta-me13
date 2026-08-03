@@ -41,6 +41,11 @@ public class UserController {
         return userDetailsFetchService.getUserCardDetailsNoRefresh(uid);
     }
 
+    @GetMapping("/dashboard/random")
+    public ResponseEntity<NoRefreshUserDTO> randomUser(){
+        return userDetailsFetchService.getRandomUserCardDetails();
+    }
+
     //unoptimised approach
     //after a hard refresh,
     // body.success true if an update/insert occurs => frontend calls timeout and noRefresh
