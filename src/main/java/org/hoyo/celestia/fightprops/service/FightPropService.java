@@ -1,5 +1,6 @@
 package org.hoyo.celestia.fightprops.service;
 
+import org.hoyo.celestia.buffEffects.model.CompositeTeamMemberDTO;
 import org.hoyo.celestia.buffEffects.model.TeamMemberDTO;
 import org.hoyo.celestia.buffEffects.service.StaticEffects;
 import org.hoyo.celestia.fightprops.model.FightPropNode;
@@ -12,9 +13,7 @@ import org.hoyo.celestia.user.model.Relic;
 import org.hoyo.celestia.user.model.Skill;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class FightPropService {
@@ -27,7 +26,7 @@ public class FightPropService {
         this.staticEffects = staticEffects;
     }
 
-    public FightPropNode getFightPropNode(AvatarDetail character){
+    public CompositeTeamMemberDTO getFightPropNode(AvatarDetail character){
         FightPropNode fightPropNode = new FightPropNode();
 
         //get character base stats from metaFile
@@ -214,6 +213,32 @@ public class FightPropService {
 //        }
 //        System.out.println("::::::::::::::::::::::::" + character.getAvatarId() + "::::::::::::::::::::::::");
 
-        return fightPropNode;
+        CompositeTeamMemberDTO dto = new CompositeTeamMemberDTO(currentCharacter, fightPropNode);
+        return dto;
     }
+
+    // returns a fresh teamMemberDTO with the provided weapon equipped
+    public TeamMemberDTO swapWeapon(TeamMemberDTO teamMemberDTO, String weaponId, Integer weaponRank){
+        if(Objects.equals(teamMemberDTO.getWeaponId(), weaponId) && Objects.equals(teamMemberDTO.getWeaponRank(), weaponRank)) {
+            TeamMemberDTO dto = teamMemberDTO.getClone();
+            dto.setWeaponId(weaponId);
+            dto.setWeaponRank(weaponRank);
+            return dto;
+        }
+        TeamMemberDTO dto = teamMemberDTO.getClone();
+        staticEffects.replaceWeaponEffect(dto, weaponId, weaponRank);
+        dto.setWeaponId(weaponId);
+        dto.setWeaponRank(weaponRank);
+        return dto;
+    }
+
+    public List<TeamMemberDTO> swapWeapons(TeamMemberDTO teamMemberDTO, Map<String, Integer> weapons) { // weapon map contains {weaponId: rank, ...}
+        List<TeamMemberDTO> dtoList = new ArrayList<>();
+        for(Map.Entry<String, Integer> entry : weapons.entrySet()) {
+            dtoList.add(swapWeapon(teamMemberDTO, entry.getKey(), entry.getValue()));
+        }
+        return dtoList;
+    }
+
+
 }

@@ -2,9 +2,7 @@ package org.hoyo.celestia.loaders;
 
 import org.hoyo.celestia.loaders.service.WeaponLoaderService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/load")
@@ -23,4 +21,10 @@ public class LoaderController {
     public ResponseEntity<String> loadHonkerWepsJSON() {
         return weaponLoaderService.execute();
     }
+
+    // POST /leaderboard-list used to live here - Immercalc pushed its
+    // avatarId list to it on startup via Feign. Removed: the avatarId set is
+    // now written to Redis directly by Immercalc and read from there (see
+    // LeaderboardStartupSync/LeaderboardUpdateListener), so nothing calls
+    // this endpoint anymore.
 }

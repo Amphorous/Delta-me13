@@ -1,5 +1,6 @@
 package org.hoyo.celestia.loaders.global;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class MetaRegenService {
                         skipped.add("avatar " + avatarId + " (no Promotion data)");
                         continue;
                     }
-                    avatar.put(avatarId, objectMapper.convertValue(promotion, Map.class));
+                    avatar.put(avatarId, objectMapper.convertValue(promotion, new TypeReference<Map<String, Map<String, Double>>>() {}));
                 } catch (Exception e) {
                     skipped.add("avatar " + avatarId + " (" + e.getMessage() + ")");
                 }
@@ -69,10 +70,10 @@ public class MetaRegenService {
                         skipped.add("weapon " + weaponId + " (no Promotion data)");
                         continue;
                     }
-                    equipment.put(weaponId, objectMapper.convertValue(promotion, Map.class));
+                    equipment.put(weaponId, objectMapper.convertValue(promotion, new TypeReference<Map<String, Map<String, Double>>>() {}));
                     JsonNode equipSkill = weapon.get("EquipmentSkill");
                     if (equipSkill != null && !equipSkill.isNull()) {
-                        equipmentSkill.put(weaponId, objectMapper.convertValue(equipSkill, Map.class));
+                        equipmentSkill.put(weaponId, objectMapper.convertValue(equipSkill, new TypeReference<Map<String, Map<String, Map<String, Double>>>>() {}));
                     }
                 } catch (Exception e) {
                     skipped.add("weapon " + weaponId + " (" + e.getMessage() + ")");
@@ -113,7 +114,7 @@ public class MetaRegenService {
 
         JsonNode treeJson = assets.get("tree");
         if (treeJson != null) {
-            meta.setTree(objectMapper.convertValue(treeJson, Map.class));
+            meta.setTree(objectMapper.convertValue(treeJson, new TypeReference<Map<String, Map<String, Map<String, Map<String, Double>>>>>() {}));
         }
 
         JsonNode skillsJson = assets.get("skills");

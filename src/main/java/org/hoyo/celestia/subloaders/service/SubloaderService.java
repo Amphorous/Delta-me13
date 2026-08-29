@@ -1,13 +1,18 @@
 package org.hoyo.celestia.subloaders.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hoyo.celestia.buffEffects.model.CompositeTeamMemberDTO;
+import org.hoyo.celestia.buffEffects.model.TeamMemberDTO;
 import org.hoyo.celestia.builds.BuildNodeRepository;
 import org.hoyo.celestia.builds.model.BuildNode;
 import org.hoyo.celestia.builds.model.SkillTree;
 import org.hoyo.celestia.builds.model.WeaponFingerprintProjection;
 import org.hoyo.celestia.builds.service.SkillTreeService;
+import org.hoyo.celestia.client.ImmercalcClient;
 import org.hoyo.celestia.fightprops.model.FightPropNode;
+import org.hoyo.celestia.fightprops.service.FightPropCalculationException;
 import org.hoyo.celestia.fightprops.service.FightPropService;
+import org.hoyo.celestia.loaders.global.LeaderboardAvatarRegistry;
 import org.hoyo.celestia.loaders.global.MissingMetaAssetException;
 import org.hoyo.celestia.loaders.global.OnDemandAssetRefresh;
 import org.hoyo.celestia.uids.UIDNodeRepository;
@@ -32,8 +37,10 @@ public class SubloaderService {
     private final FightPropService fightPropService;
     private final SkillTreeService skillTreeService;
     private final OnDemandAssetRefresh onDemandAssetRefresh;
+    private final LeaderboardAvatarRegistry leaderboardAvatarRegistry;
+    private final ImmercalcClient immercalcClient;
 
-    public SubloaderService(UIDNodeRepository uidNodeRepository, BuildNodeRepository buildNodeRepository, RelicNodeRepository relicNodeRepository, CreateRelicService createRelicService, FightPropService fightPropService, SkillTreeService skillTreeService, OnDemandAssetRefresh onDemandAssetRefresh) {
+    public SubloaderService(UIDNodeRepository uidNodeRepository, BuildNodeRepository buildNodeRepository, RelicNodeRepository relicNodeRepository, CreateRelicService createRelicService, FightPropService fightPropService, SkillTreeService skillTreeService, OnDemandAssetRefresh onDemandAssetRefresh, LeaderboardAvatarRegistry leaderboardAvatarRegistry, ImmercalcClient immercalcClient) {
         this.uidNodeRepository = uidNodeRepository;
         this.buildNodeRepository = buildNodeRepository;
         this.relicNodeRepository = relicNodeRepository;
@@ -41,6 +48,8 @@ public class SubloaderService {
         this.fightPropService = fightPropService;
         this.skillTreeService = skillTreeService;
         this.onDemandAssetRefresh = onDemandAssetRefresh;
+        this.leaderboardAvatarRegistry = leaderboardAvatarRegistry;
+        this.immercalcClient = immercalcClient;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -106,7 +115,34 @@ public class SubloaderService {
                 newStaticBuild.setSkillListString(characterSkillListString);
                 newStaticBuild.setIsStatic(true);
 
-                FightPropNode fightPropNode = fightPropService.getFightPropNode(character);
+                CompositeTeamMemberDTO dto;
+                try {
+                    dto = fightPropService.getFightPropNode(character);
+                } catch (MissingMetaAssetException e) {
+                    // typed miss, unchanged - let the existing per-character catch below handle it
+                    throw e;
+                } catch (RuntimeException e) {
+                    // any other failure (e.g. a mistyped meta value) gets uid/avatarId
+                    // context attached, then propagates exactly as before
+                    throw new FightPropCalculationException(user.getUid(), character.getAvatarId(), e);
+                }
+                FightPropNode fightPropNode = dto.getFightPropNode();
+
+                TeamMemberDTO teamMemberDTO = dto.getTeamMemberDTO();
+                if (leaderboardAvatarRegistry.hasLeaderboard(character.getAvatarId())) {
+                    try {
+                        Double dmg = immercalcClient.dmgCalc(teamMemberDTO, character.getAvatarId());
+                        // TODO: nothing persists this yet - leaderboard storage/ranking
+                        // is separate future work, this just wires the call through.
+                        log.info("Dmg calc for uid {} avatarId {}: {}", user.getUid(), character.getAvatarId(), dmg);
+                    } catch (Exception e) {
+                        // Leaderboard calc is a nice-to-have, not the reason this
+                        // transaction exists - same treatment as
+                        // MissingMetaAssetException below, a failure here shouldn't
+                        // roll back the character's build upsert.
+                        log.warn("Dmg calc call to Immercalc failed for uid {} avatarId {}: {}", user.getUid(), character.getAvatarId(), e.getMessage());
+                    }
+                }
 
                 // look for build with avatarId == character.avatarId and isStatic == true and go to its fightpropnode and detach delete it
                 // look for build with avatarId == character.avatarId and isStatic == true and detach delete it

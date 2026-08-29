@@ -48,6 +48,28 @@ public class StaticEffects {
         }
     }
 
+    public void replaceWeaponEffect(TeamMemberDTO teamMember, String weaponId, Integer rank) {
+        Map<String, Double> context = null;
+        Map<String, Double> newContext = null;
+        try{
+            // FIXME there could be a case where one of the weapons doesnt have an effect while another does, this could require a revision of conditions
+            context = globalMetaFileLoader.getMetaFile().getEquipmentSkill().get(teamMember.getWeaponId()).get(String.valueOf(teamMember.getWeaponRank())).get("props");
+            newContext = globalMetaFileLoader.getMetaFile().getEquipmentSkill().get(weaponId).get(String.valueOf(rank)).get("props");
+        } catch (NullPointerException e) {
+            //weapon prolly doesnt have a static effect
+            return;
+        }
+        if(context == null || newContext == null) {throw new RuntimeException("Weapon doesnt exist when trying to swap in org.hoyo.celestia.buffEffects.service.StaticEffects.replaceWeaponEffect");}
+
+        for(Map.Entry<String, Double> entry : context.entrySet()) {
+            effectRoutingStatSubtracter(teamMember.getStats(), entry);
+        }
+        for(Map.Entry<String, Double> entry : newContext.entrySet()) {
+            effectRoutingStatAdder(teamMember.getStats(), entry);
+        }
+
+    }
+
     public void relicEffectRouting(Map<String,Double> stats, Integer relicSet, Integer relicCount) {
         // A brand-new relic set (fresh game version) may be absent from the
         // meta entirely, or present with missing piece-count entries — a set
@@ -77,6 +99,15 @@ public class StaticEffects {
             key = key.substring(0,key.length()-4);
         }
         stats.put(key, stats.getOrDefault(key, 0.0) + value);
+    }
+
+    public static void effectRoutingStatSubtracter(Map<String, Double> stats, Map.Entry<String, Double> entry) {
+        String key = entry.getKey();
+        Double value = entry.getValue();
+        if(key.substring(key.length()-4).equalsIgnoreCase("base")){
+            key = key.substring(0,key.length()-4);
+        }
+        stats.put(key, stats.getOrDefault(key, 0.0) - value);
     }
 
     public void effectAdd(Map<String,Double> stats, String targetStat, Double value) {
